@@ -1,9 +1,12 @@
 // src/routes/AppRoutes.jsx
 import React from 'react';
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
+
 import Layout from '../components/Layout';
+import PrivateRoute from './ProtectedRoute';
 
 // Pages
+import Login from '../pages/Auth/Login';
 import Dashboard from '../pages/Dashboard/Dashboard';
 
 // 👥 Users
@@ -35,16 +38,28 @@ import SalesReport from '../pages/Analytics/SalesReport';
 // 🎯 Marketing
 import Coupons from '../pages/Marketing/Coupons';
 import EmailCampaign from '../pages/Marketing/EmailCampaign';
+import Banners from '../pages/Marketing/Banners';
 
 // ⚙️ Settings
 import Settings from '../pages/Settings';
-import Banners from '../pages/Marketing/Banners';
 
 export default function AppRoutes() {
     return (
         <Routes>
-            {/* Layout Wrapper */}
-            <Route path="/" element={<Layout />}>
+
+            {/* 🔐 Login Page (no layout) */}
+            <Route path="/login" element={<Login />} />
+
+            {/* 🌐 Protected Routes */}
+            <Route
+                path="/"
+                element={
+                    <PrivateRoute>
+                        <Layout />
+                    </PrivateRoute>
+                }
+            >
+
                 {/* 🏠 Dashboard */}
                 <Route index element={<Dashboard />} />
 
@@ -100,11 +115,11 @@ export default function AppRoutes() {
                 {/* ⚙️ Settings */}
                 <Route path="settings" element={<Settings />} />
 
-                {/* 404 / Not Found */}
+                {/* 🚫 404 */}
                 <Route
                     path="*"
                     element={
-                        <div className="text-center text-red-500 text-2xl mt-20">
+                        <div className="mt-20 text-center text-2xl text-red-500">
                             404 | Page Not Found
                         </div>
                     }
