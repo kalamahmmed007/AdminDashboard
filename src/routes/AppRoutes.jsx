@@ -15,6 +15,9 @@ import Roles from '../pages/Users/Roles';
 import AllOrders from '../pages/Orders/AllOrders';
 import PendingOrders from '../pages/Orders/PendingOrders';
 import CompletedOrders from '../pages/Orders/CompletedOrders';
+import NewOrderPage from "../pages/Orders/NewOrder";
+import OrderDetailPage from "../pages/Orders/OrderDetail";
+import EditOrderPage from "../pages/Orders/EditOrder";
 
 // 🛒 Products
 import AllProducts from '../pages/Products/AllProducts';
@@ -59,6 +62,9 @@ export default function AppRoutes() {
                     <Route path="all" element={<AllOrders />} />
                     <Route path="pending" element={<PendingOrders />} />
                     <Route path="completed" element={<CompletedOrders />} />
+                    <Route path="new" element={<NewOrderPage />} />
+                    <Route path=":orderId" element={<OrderDetailPage />} />
+                    <Route path=":orderId/edit" element={<EditOrderPage />} />
                 </Route>
 
                 {/* 🛒 Products */}

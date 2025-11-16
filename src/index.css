@@ -1,8 +1,10 @@
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* stylelint-enable at-rule-no-unknown */
 
-/* small helper styles */
-html,body,#root { height: 100%; }
-body { @apply bg-slate-50 text-slate-800; }
-.dark body { @apply bg-slate-900 text-slate-100; }
+
+.btn-primary {
+    @apply bg-blue-500 text-white px-4 py-2 rounded;
+}

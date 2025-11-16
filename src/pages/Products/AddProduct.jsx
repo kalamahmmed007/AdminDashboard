@@ -1,135 +1,195 @@
-// src/pages/Products/AddProduct.jsx
-import React, { useState } from 'react';
+import { useState } from "react";
+import { ProductsService } from "../../services/products";
 
 export default function AddProduct() {
     const [product, setProduct] = useState({
-        name: '',
-        category: '',
-        price: '',
-        stock: '',
-        description: '',
+        name: "",
+        sku: "",
+        description: "",
+        shortDescription: "",
+        category: "",
+        brand: "",
+        price: "",
+        discountPrice: "",
+        costPrice: "",
+        tax: "",
+        stockQuantity: "",
+        stockStatus: "in-stock",
+        lowStockAlert: "",
+        mainImage: null,
+        galleryImages: [],
+        video: null,
+        size: "",
+        color: "",
+        material: "",
+        weight: "",
+        variantPricing: "",
+        variantSku: "",
+        metaTitle: "",
+        metaDescription: "",
+        slug: "",
+        tags: "",
+        featured: false,
+        newProduct: false,
+        bestseller: false,
+        shippingWeight: "",
+        shippingDimensions: "",
+        customAttributes: "",
     });
 
-    const [image, setImage] = useState(null);
-
-    const handleChange = e => {
-        const { name, value } = e.target;
-        setProduct(prev => ({ ...prev, [name]: value }));
+    const handleChange = (e) => {
+        const { name, value, type, checked, files } = e.target;
+        if (type === "checkbox") {
+            setProduct({ ...product, [name]: checked });
+        } else if (type === "file") {
+            if (name === "mainImage" || name === "video") {
+                setProduct({ ...product, [name]: files[0] });
+            } else if (name === "galleryImages") {
+                setProduct({ ...product, galleryImages: Array.from(files) });
+            }
+        } else {
+            setProduct({ ...product, [name]: value });
+        }
     };
 
-    const handleImageChange = e => {
-        setImage(e.target.files[0]);
-    };
-
-    const handleSubmit = e => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO: Redux / API call logic here
-        console.log('Product submitted:', { ...product, image });
-        alert('Product submitted! Check console for details.');
+
+        try {
+            const formData = new FormData();
+            for (let key in product) {
+                if (key === "galleryImages") {
+                    product.galleryImages.forEach((file) => formData.append("galleryImages", file));
+                } else if (product[key] !== null && product[key] !== "") {
+                    formData.append(key, product[key]);
+                }
+            }
+
+            const response = await ProductsService.create(formData);
+            alert("Product added successfully!");
+            console.log(response.data);
+            // Optionally reset form
+            setProduct({
+                name: "",
+                sku: "",
+                description: "",
+                shortDescription: "",
+                category: "",
+                brand: "",
+                price: "",
+                discountPrice: "",
+                costPrice: "",
+                tax: "",
+                stockQuantity: "",
+                stockStatus: "in-stock",
+                lowStockAlert: "",
+                mainImage: null,
+                galleryImages: [],
+                video: null,
+                size: "",
+                color: "",
+                material: "",
+                weight: "",
+                variantPricing: "",
+                variantSku: "",
+                metaTitle: "",
+                metaDescription: "",
+                slug: "",
+                tags: "",
+                featured: false,
+                newProduct: false,
+                bestseller: false,
+                shippingWeight: "",
+                shippingDimensions: "",
+                customAttributes: "",
+            });
+        } catch (err) {
+            console.error(err);
+            alert("Failed to add product. Check console.");
+        }
     };
 
     return (
-        <div className="max-w-4xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-lg shadow">
-            <h2 className="text-2xl font-bold mb-6 text-slate-900 dark:text-slate-100">
-                Add New Product
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-                        Product Name
+        <div className="mx-auto max-w-5xl rounded bg-white p-6 shadow">
+            <h1 className="mb-6 text-2xl font-bold">Add New Product</h1>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Basic Info */}
+                <div className="space-y-2">
+                    <h2 className="font-semibold">Basic Info</h2>
+                    <input type="text" name="name" placeholder="Product Name" className="w-full rounded border px-3 py-2" value={product.name} onChange={handleChange} required />
+                    <input type="text" name="sku" placeholder="SKU / Product Code" className="w-full rounded border px-3 py-2" value={product.sku} onChange={handleChange} />
+                    <textarea name="description" placeholder="Description" className="w-full rounded border px-3 py-2" value={product.description} onChange={handleChange} required />
+                    <textarea name="shortDescription" placeholder="Short Description" className="w-full rounded border px-3 py-2" value={product.shortDescription} onChange={handleChange} />
+                    <input type="text" name="category" placeholder="Category" className="w-full rounded border px-3 py-2" value={product.category} onChange={handleChange} />
+                    <input type="text" name="brand" placeholder="Brand" className="w-full rounded border px-3 py-2" value={product.brand} onChange={handleChange} />
+                </div>
+
+                {/* Pricing */}
+                <div className="space-y-2">
+                    <h2 className="font-semibold">Pricing</h2>
+                    <input type="number" name="price" placeholder="Price" className="w-full rounded border px-3 py-2" value={product.price} onChange={handleChange} required />
+                    <input type="number" name="discountPrice" placeholder="Discount Price" className="w-full rounded border px-3 py-2" value={product.discountPrice} onChange={handleChange} />
+                    <input type="number" name="costPrice" placeholder="Cost Price" className="w-full rounded border px-3 py-2" value={product.costPrice} onChange={handleChange} />
+                    <input type="number" name="tax" placeholder="Tax (%)" className="w-full rounded border px-3 py-2" value={product.tax} onChange={handleChange} />
+                </div>
+
+                {/* Stock & Inventory */}
+                <div className="space-y-2">
+                    <h2 className="font-semibold">Stock & Inventory</h2>
+                    <input type="number" name="stockQuantity" placeholder="Stock Quantity" className="w-full rounded border px-3 py-2" value={product.stockQuantity} onChange={handleChange} required />
+                    <input type="text" name="stockStatus" placeholder="Stock Status" className="w-full rounded border px-3 py-2" value={product.stockStatus} onChange={handleChange} />
+                    <input type="number" name="lowStockAlert" placeholder="Low Stock Alert" className="w-full rounded border px-3 py-2" value={product.lowStockAlert} onChange={handleChange} />
+                </div>
+
+                {/* Media */}
+                <div className="space-y-2">
+                    <h2 className="font-semibold">Media</h2>
+                    <input type="file" name="mainImage" onChange={handleChange} />
+                    <input type="file" name="galleryImages" multiple onChange={handleChange} />
+                    <input type="file" name="video" onChange={handleChange} />
+                </div>
+
+                {/* Attributes / Variants */}
+                <div className="space-y-2">
+                    <h2 className="font-semibold">Attributes / Variants</h2>
+                    <input type="text" name="size" placeholder="Size" className="w-full rounded border px-3 py-2" value={product.size} onChange={handleChange} />
+                    <input type="text" name="color" placeholder="Color" className="w-full rounded border px-3 py-2" value={product.color} onChange={handleChange} />
+                    <input type="text" name="material" placeholder="Material" className="w-full rounded border px-3 py-2" value={product.material} onChange={handleChange} />
+                    <input type="text" name="weight" placeholder="Weight" className="w-full rounded border px-3 py-2" value={product.weight} onChange={handleChange} />
+                    <input type="number" name="variantPricing" placeholder="Variant Pricing" className="w-full rounded border px-3 py-2" value={product.variantPricing} onChange={handleChange} />
+                    <input type="text" name="variantSku" placeholder="Variant SKU" className="w-full rounded border px-3 py-2" value={product.variantSku} onChange={handleChange} />
+                </div>
+
+                {/* SEO / Meta */}
+                <div className="space-y-2">
+                    <h2 className="font-semibold">SEO / Meta</h2>
+                    <input type="text" name="metaTitle" placeholder="Meta Title" className="w-full rounded border px-3 py-2" value={product.metaTitle} onChange={handleChange} />
+                    <input type="text" name="metaDescription" placeholder="Meta Description" className="w-full rounded border px-3 py-2" value={product.metaDescription} onChange={handleChange} />
+                    <input type="text" name="slug" placeholder="Slug / URL" className="w-full rounded border px-3 py-2" value={product.slug} onChange={handleChange} />
+                    <input type="text" name="tags" placeholder="Tags (comma separated)" className="w-full rounded border px-3 py-2" value={product.tags} onChange={handleChange} />
+                </div>
+
+                {/* Optional Advanced */}
+                <div className="space-y-2">
+                    <h2 className="font-semibold">Optional Advanced</h2>
+                    <label className="flex items-center space-x-2">
+                        <input type="checkbox" name="featured" checked={product.featured} onChange={handleChange} />
+                        <span>Featured</span>
                     </label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={product.name}
-                        onChange={handleChange}
-                        required
-                        className="mt-1 block w-full p-2 border rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-                        Category
+                    <label className="flex items-center space-x-2">
+                        <input type="checkbox" name="newProduct" checked={product.newProduct} onChange={handleChange} />
+                        <span>New Product</span>
                     </label>
-                    <select
-                        name="category"
-                        value={product.category}
-                        onChange={handleChange}
-                        required
-                        className="mt-1 block w-full p-2 border rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
-                    >
-                        <option value="">Select Category</option>
-                        <option value="electronics">Electronics</option>
-                        <option value="clothing">Clothing</option>
-                        <option value="accessories">Accessories</option>
-                    </select>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-                            Price
-                        </label>
-                        <input
-                            type="number"
-                            name="price"
-                            value={product.price}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full p-2 border rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-                            Stock Quantity
-                        </label>
-                        <input
-                            type="number"
-                            name="stock"
-                            value={product.stock}
-                            onChange={handleChange}
-                            required
-                            className="mt-1 block w-full p-2 border rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-                        Description
+                    <label className="flex items-center space-x-2">
+                        <input type="checkbox" name="bestseller" checked={product.bestseller} onChange={handleChange} />
+                        <span>Bestseller</span>
                     </label>
-                    <textarea
-                        name="description"
-                        value={product.description}
-                        onChange={handleChange}
-                        rows={4}
-                        className="mt-1 block w-full p-2 border rounded-md border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
-                    ></textarea>
+                    <input type="text" name="shippingWeight" placeholder="Shipping Weight" className="w-full rounded border px-3 py-2" value={product.shippingWeight} onChange={handleChange} />
+                    <input type="text" name="shippingDimensions" placeholder="Shipping Dimensions" className="w-full rounded border px-3 py-2" value={product.shippingDimensions} onChange={handleChange} />
+                    <input type="text" name="customAttributes" placeholder="Custom Attributes (JSON)" className="w-full rounded border px-3 py-2" value={product.customAttributes} onChange={handleChange} />
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-                        Product Image
-                    </label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="mt-1 block w-full text-slate-700 dark:text-slate-200"
-                    />
-                    {image && (
-                        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                            Selected: {image.name}
-                        </p>
-                    )}
-                </div>
-
-                <button
-                    type="submit"
-                    className="mt-4 bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-md font-medium transition"
-                >
+                <button type="submit" className="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700">
                     Add Product
                 </button>
             </form>

@@ -1,5 +1,4 @@
-// src/pages/Dashboard.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import StatCard from "../../components/StatCard";
 import TopSalesCard from "../../components/TopSalesCard";
 import Chart from "../../components/Chart";
@@ -14,11 +13,11 @@ const tasks = ["Audit logs", "Review pending orders"];
 
 function InfoCard({ title, items }) {
   return (
-    <div className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg transition hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
       <h3 className="font-bold text-red-600">{title}</h3>
-      <ul className="mt-3 text-sm text-slate-500 dark:text-slate-400 space-y-1">
+      <ul className="mt-3 space-y-1 text-sm text-slate-500 dark:text-slate-400">
         {items.map((item, index) => (
-          <li key={index} className="hover:text-red-600 transition font-semibold">
+          <li key={index} className="font-semibold transition hover:text-red-600">
             {item}
           </li>
         ))}
@@ -28,39 +27,57 @@ function InfoCard({ title, items }) {
 }
 
 export default function Dashboard() {
+  const [stats, setStats] = useState({
+    todaySales: 4128,
+    orders: 1042,
+    companyValue: 24300,
+    salesTrend: [400, 450, 420, 480, 500, 550, 600],
+    ordersTrend: [1200, 1150, 1100, 1080, 1050, 1040, 1020],
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  // simulate loading delay
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) return <div className="p-6">Loading dashboard...</div>;
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard
           title="Today Sales"
-          value="4,128"
+          value={stats.todaySales.toLocaleString()}
           delta="+3.5% vs last week"
-          trendData={[400, 450, 420, 480, 500, 550, 600]}
-          valueClassName="text-red-600 font-bold"
+          trendData={stats.salesTrend}
+          valueClassName="font-bold text-red-600"
         />
         <StatCard
           title="Company Value"
-          value="$24,300"
+          value={`$${stats.companyValue.toLocaleString()}`}
           delta="+1.2% vs last week"
-          trendData={[2300, 2450, 2400, 2500, 2600, 2430, 2480]}
-          valueClassName="text-red-600 font-bold"
+          trendData={stats.salesTrend}
+          valueClassName="font-bold text-red-600"
         />
         <StatCard
           title="Orders"
-          value="1,042"
+          value={stats.orders.toLocaleString()}
           delta="-0.5% vs last week"
-          trendData={[1200, 1150, 1100, 1080, 1050, 1040, 1020]}
-          valueClassName="text-red-600 font-bold"
+          trendData={stats.ordersTrend}
+          valueClassName="font-bold text-red-600"
         />
       </div>
 
       {/* Main Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
           {/* Chart */}
-          <div className="p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-lg hover:shadow-xl transition">
-            <Chart />
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg transition hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+            <Chart salesTrend={stats.salesTrend} ordersTrend={stats.ordersTrend} />
           </div>
 
           {/* Top Sales */}

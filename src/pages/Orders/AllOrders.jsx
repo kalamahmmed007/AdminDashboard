@@ -1,98 +1,127 @@
-// src/pages/Orders/AllOrders.jsx
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import OrdersTable from "../../components/Orders/OrdersTable";
+import debounce from "lodash.debounce";
 
 export default function AllOrders() {
-  const [orders, setOrders] = useState([]);
+  const navigate = useNavigate();
 
-  // Dummy data, পরে API call দিয়ে replace করা যাবে
-  useEffect(() => {
-    setOrders([
-      {
-        id: 101,
-        customer: 'Rimi TanHa',
-        product: 'Laptop',
-        quantity: 1,
-        total: 1200,
-        date: '2025-11-01',
-        status: 'Completed',
-      },
-      {
-        id: 102,
-        customer: 'Arian Ahmed',
-        product: 'Keyboard',
-        quantity: 2,
-        total: 100,
-        date: '2025-11-02',
-        status: 'Pending',
-      },
-      {
-        id: 103,
-        customer: 'Nazma Rima',
-        product: 'Mouse',
-        quantity: 1,
-        total: 30,
-        date: '2025-11-03',
-        status: 'Canceled',
-      },
-      {
-        id: 104,
-        customer: 'Taharima Tanha',
-        product: 'Headphones',
-        quantity: 1,
-        total: 60,
-        date: '2025-11-04',
-        status: 'Completed',
-      },
-      {
-        id: 105,
-        customer: 'Rimi TanHa',
-        product: 'Monitor',
-        quantity: 2,
-        total: 400,
-        date: '2025-11-05',
-        status: 'Pending',
-      },
-    ]);
-  }, []);
+  // Dummy orders
+  const dummyOrders = [
+    {
+      id: "101",
+      customer: "John Doe",
+      status: "Pending",
+      total: 120.5,
+      date: "2025-11-14",
+    },
+    {
+      id: "102",
+      customer: "Alice Smith",
+      status: "Fulfilled",
+      total: 75.0,
+      date: "2025-11-13",
+    },
+    {
+      id: "103",
+      customer: "Bob Johnson",
+      status: "Unfulfilled",
+      total: 200.0,
+      date: "2025-11-12",
+    },
+    {
+      id: "104",
+      customer: "Leena Brown",
+      status: "Pending",
+      total: 50.0,
+      date: "2025-11-11",
+    },
+  ];
+
+  const [items, setItems] = useState(dummyOrders);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("All");
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
+  // Debounced search
+  const debouncedSearch = useCallback(
+    debounce((val) => setQuery(val), 300),
+    []
+  );
+  const handleSearch = (e) => debouncedSearch(e.target.value);
+
+  // Filter and paginate
+  const filteredItems = items
+    .filter((o) =>
+      (query ? o.id.includes(query) || o.customer.toLowerCase().includes(query.toLowerCase()) : true) &&
+      (status === "All" ? true : o.status === status)
+    )
+    .slice((page - 1) * limit, page * limit);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">All Orders</h1>
-      <table className="w-full border-collapse border border-slate-300">
-        <thead>
-          <tr className="bg-slate-100">
-            <th className="border border-slate-300 px-4 py-2">Order ID</th>
-            <th className="border border-slate-300 px-4 py-2">Customer</th>
-            <th className="border border-slate-300 px-4 py-2">Product</th>
-            <th className="border border-slate-300 px-4 py-2">Quantity</th>
-            <th className="border border-slate-300 px-4 py-2">Total ($)</th>
-            <th className="border border-slate-300 px-4 py-2">Date</th>
-            <th className="border border-slate-300 px-4 py-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map(order => (
-            <tr key={order.id} className="hover:bg-slate-50">
-              <td className="border border-slate-300 px-4 py-2">{order.id}</td>
-              <td className="border border-slate-300 px-4 py-2">{order.customer}</td>
-              <td className="border border-slate-300 px-4 py-2">{order.product}</td>
-              <td className="border border-slate-300 px-4 py-2">{order.quantity}</td>
-              <td className="border border-slate-300 px-4 py-2">{order.total}</td>
-              <td className="border border-slate-300 px-4 py-2">{order.date}</td>
-              <td
-                className={`border border-slate-300 px-4 py-2 font-semibold ${order.status === 'Completed'
-                    ? 'text-green-600'
-                    : order.status === 'Pending'
-                      ? 'text-yellow-600'
-                      : 'text-red-600'
-                  }`}
-              >
-                {order.status}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="mx-auto max-w-6xl p-6">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-2xl font-semibold">Orders</h2>
+        <button
+          onClick={() => navigate("/orders/new")}
+          className="rounded bg-blue-600 px-4 py-2 text-white"
+        >
+          + New Order
+        </button>
+      </div>
+
+      {/* Filters */}
+      <div className="mb-4 flex items-center gap-3">
+        <input
+          placeholder="Search ID or customer"
+          className="w-full max-w-sm rounded border px-3 py-2"
+          onChange={handleSearch}
+        />
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="rounded border px-3 py-2"
+        >
+          <option value="All">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Fulfilled">Fulfilled</option>
+          <option value="Unfulfilled">Unfulfilled</option>
+        </select>
+      </div>
+
+      {/* Orders Table */}
+      <div className="overflow-hidden rounded border bg-white shadow-sm">
+        <OrdersTable
+          orders={filteredItems}
+          loading={false}
+          onRowClick={(order) => navigate(`/orders/${order.id}`)}
+        />
+      </div>
+
+      {/* Pagination */}
+      <div className="mt-4 flex items-center justify-between text-xs text-gray-600">
+        <div>
+          Showing {filteredItems.length} of {items.length}
+        </div>
+        <div className="flex gap-2">
+          <button
+            className="rounded border px-3 py-1 disabled:opacity-50"
+            disabled={page <= 1}
+            onClick={() => setPage(page - 1)}
+          >
+            Prev
+          </button>
+          <div className="rounded border px-3 py-1">Page {page}</div>
+          <button
+            className="rounded border px-3 py-1 disabled:opacity-50"
+            disabled={page >= Math.ceil(items.length / limit)}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
