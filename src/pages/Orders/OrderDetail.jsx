@@ -183,7 +183,7 @@ export default function OrderDetails() {
             {/* Delete Modal */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="w-80 rounded bg-white p-6 shadow-lg">
+                    <div className="*: w-80 rounded bg-white p-6 shadow-lg">
                         <h3 className="mb-4 text-lg font-medium">Confirm Delete</h3>
                         <p className="mb-6 text-sm text-gray-600">Are you sure you want to permanently delete this order?</p>
                         <div className="flex justify-end gap-2">
