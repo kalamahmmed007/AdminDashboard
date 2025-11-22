@@ -1,6 +1,6 @@
 // src/routes/AppRoutes.jsx
 import React from 'react';
-import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
+import { Routes, Route, Outlet } from 'react-router-dom';
 
 import Layout from '../components/Layout';
 import PrivateRoute from './ProtectedRoute';
@@ -9,48 +9,54 @@ import PrivateRoute from './ProtectedRoute';
 import Login from '../pages/Auth/Login';
 import Dashboard from '../pages/Dashboard/Dashboard';
 
-// 👥 Users
+// Users
 import AllUsers from '../pages/Users/AllUsers';
 import AddUser from '../pages/Users/AddUser';
 import Roles from '../pages/Users/Roles';
 
-// 📦 Orders
+// Orders
 import AllOrders from '../pages/Orders/AllOrders';
 import PendingOrders from '../pages/Orders/PendingOrders';
 import CompletedOrders from '../pages/Orders/CompletedOrders';
-import NewOrderPage from "../pages/Orders/NewOrder";
-import OrderDetailPage from "../pages/Orders/OrderDetail";
-import EditOrderPage from "../pages/Orders/EditOrder";
+import NewOrderPage from '../pages/Orders/NewOrder';
+import OrderDetailPage from '../pages/Orders/OrderDetail';
+import EditOrderPage from '../pages/Orders/EditOrder';
+import Tracking from '../pages/Orders/Tracking';
+import Refunds from '../pages/Orders/Refunds';
 
-// 🛒 Products
+
+// Products
 import AllProducts from '../pages/Products/AllProducts';
 import AddProduct from '../pages/Products/AddProduct';
 import Categories from '../pages/Products/Categories';
 import Tags from '../pages/Products/Tags';
 import Inventory from '../pages/Products/Inventory';
+import StockManagement from '../pages/Products/StockManagement';
+import Productreview from '../pages/Products/Productreview';
 
-// 📊 Analytics
+// Analytics
 import CustomerReports from '../pages/Analytics/CustomerReports';
 import ProductReports from '../pages/Analytics/ProductReports';
 import RevenueAnalysis from '../pages/Analytics/RevenueAnalysis';
 import SalesReport from '../pages/Analytics/SalesReport';
 
-// 🎯 Marketing
+// Marketing
 import Coupons from '../pages/Marketing/Coupons';
 import EmailCampaign from '../pages/Marketing/EmailCampaign';
 import Banners from '../pages/Marketing/Banners';
 
-// ⚙️ Settings
+// Settings
 import Settings from '../pages/Settings';
+
+
 
 export default function AppRoutes() {
     return (
         <Routes>
-
-            {/* 🔐 Login Page (no layout) */}
+            {/* Public Login */}
             <Route path="/login" element={<Login />} />
 
-            {/* 🌐 Protected Routes */}
+            {/* Protected Routes */}
             <Route
                 path="/"
                 element={
@@ -59,11 +65,10 @@ export default function AppRoutes() {
                     </PrivateRoute>
                 }
             >
-
-                {/* 🏠 Dashboard */}
+                {/* Dashboard */}
                 <Route index element={<Dashboard />} />
 
-                {/* 👥 Users */}
+                {/* Users */}
                 <Route path="users" element={<Outlet />}>
                     <Route index element={<AllUsers />} />
                     <Route path="all" element={<AllUsers />} />
@@ -71,18 +76,21 @@ export default function AppRoutes() {
                     <Route path="roles" element={<Roles />} />
                 </Route>
 
-                {/* 📦 Orders */}
+                {/* Orders */}
                 <Route path="orders" element={<Outlet />}>
                     <Route index element={<AllOrders />} />
                     <Route path="all" element={<AllOrders />} />
                     <Route path="pending" element={<PendingOrders />} />
                     <Route path="completed" element={<CompletedOrders />} />
                     <Route path="new" element={<NewOrderPage />} />
+                    <Route path="tracking" element={<Tracking />} />
+                    <Route path="returns" element={<Refunds />} />
+                    {/* Dynamic Routes */}
                     <Route path=":orderId" element={<OrderDetailPage />} />
                     <Route path=":orderId/edit" element={<EditOrderPage />} />
                 </Route>
 
-                {/* 🛒 Products */}
+                {/* Products */}
                 <Route path="products" element={<Outlet />}>
                     <Route index element={<AllProducts />} />
                     <Route path="all" element={<AllProducts />} />
@@ -93,11 +101,13 @@ export default function AppRoutes() {
                         <Route path="clothing" element={<Categories />} />
                         <Route path="accessories" element={<Categories />} />
                     </Route>
+                    <Route path="stock-management" element={<StockManagement />} />
+                    <Route path="productreview" element={<Productreview />} />
                     <Route path="tags" element={<Tags />} />
                     <Route path="inventory" element={<Inventory />} />
                 </Route>
 
-                {/* 📊 Analytics */}
+                {/* Analytics */}
                 <Route path="analytics" element={<Outlet />}>
                     <Route path="customers" element={<CustomerReports />} />
                     <Route path="products" element={<ProductReports />} />
@@ -105,17 +115,17 @@ export default function AppRoutes() {
                     <Route path="sales" element={<SalesReport />} />
                 </Route>
 
-                {/* 🎯 Marketing */}
+                {/* Marketing */}
                 <Route path="marketing" element={<Outlet />}>
                     <Route path="coupons" element={<Coupons />} />
                     <Route path="email" element={<EmailCampaign />} />
                     <Route path="banners" element={<Banners />} />
                 </Route>
 
-                {/* ⚙️ Settings */}
+                {/* Settings */}
                 <Route path="settings" element={<Settings />} />
 
-                {/* 🚫 404 */}
+                {/* 404 */}
                 <Route
                     path="*"
                     element={

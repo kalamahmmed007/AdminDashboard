@@ -67,11 +67,11 @@ export default function Sidebar() {
             { label: 'Clothing', to: '/products/categories/clothing' },
             { label: 'Accessories', to: '/products/categories/accessories' },
             { label: 'Brands', to: '/products/categories/brands' },
-            { label: 'Stock Management', to: '/products/categories/stock' },
-            { label: 'Product Reviews', to: '/products/categories/reviews' },
             { label: 'Attributes (Size, Color etc.)', to: '/products/categories/attributes' }
           ],
         },
+        { label: 'Stock Management', to: '/products/stock-management' },
+        { label: 'Product Reviews', to: '/products/productreview' },
         { label: 'Tags', to: '/products/tags' },
         { label: 'Inventory', to: '/products/inventory' },
       ],
