@@ -1,189 +1,263 @@
 // src/components/Sidebar.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ShoppingCart, Package, Users, BarChart2, Settings, Mail, LogOut } from 'lucide-react';
-import { logout } from '../utils/logout';
+import {
+  ChevronDown,
+  ChevronRight,
+  LayoutDashboard,
+  Users,
+  ShoppingBag,
+  FileText,
+  DollarSign,
+  Truck,
+  Megaphone,
+  Package,
+  BarChart3,
+  Settings,
+  LogOut,
+} from 'lucide-react';
 
-const menuItems = [
-  { to: '/', label: 'Dashboard', icon: <Home size={20} /> },
-  {
-    label: 'Orders',
-    icon: <ShoppingCart size={20} />,
-    subMenu: [
-      { to: '/orders/all', label: 'All Orders' },
-      { to: '/orders/pending', label: 'Pending' },
-      { to: '/orders/completed', label: 'Completed' },
-      { to: '/orders/canceled', label: 'Canceled' },
-      { to: '/orders/returns', label: 'Returns' },
-    ],
-  },
-  {
-    label: 'Products',
-    icon: <Package size={20} />,
-    subMenu: [
-      { to: '/products/all', label: 'All Products' },
-      { to: '/products/add', label: 'Add Product' },
-      {
-        label: 'Categories',
-        subMenu: [
-          { to: '/products/categories/electronics', label: 'Electronics' },
-          { to: '/products/categories/clothing', label: 'Clothing' },
-          { to: '/products/categories/accessories', label: 'Accessories' },
-        ],
-      },
-      { to: '/products/tags', label: 'Tags' },
-      { to: '/products/inventory', label: 'Inventory' },
-    ],
-  },
-  {
-    label: 'Users',
-    icon: <Users size={20} />,
-    subMenu: [
-      { to: '/users/all', label: 'All Customers' },
-      { to: '/users/add', label: 'Add Customer' },
-      { to: '/users/groups', label: 'Groups' },
-      { to: '/users/roles', label: 'Roles & Permissions' },
-    ],
-  },
-  {
-    label: 'Analytics',
-    icon: <BarChart2 size={20} />,
-    subMenu: [
-      { to: '/analytics/sales', label: 'Sales Reports' },
-      { to: '/analytics/customers', label: 'Customer Reports' },
-      { to: '/analytics/products', label: 'Product Reports' },
-      { to: '/analytics/revenue', label: 'Revenue Analysis' },
-    ],
-  },
-  {
-    label: 'Marketing',
-    icon: <Mail size={20} />,
-    subMenu: [
-      { to: '/marketing/coupons', label: 'Coupons' },
-      { to: '/marketing/email', label: 'Email Campaigns' },
-      { to: '/marketing/banners', label: 'Banners' },
-    ],
-  },
-  { to: '/settings', label: 'Settings', icon: <Settings size={20} /> },
+export default function Sidebar() {
+  const location = useLocation();
+  const [expanded, setExpanded] = useState({});
 
-  // LOGOUT (special)
-  { label: 'Logout', icon: <LogOut size={20} /> },
-];
+  const toggle = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
 
-const SidebarItem = ({ item, loc }) => {
-  const hasSubMenu = item.subMenu && item.subMenu.length > 0;
-  const isActive = item.to && (loc.pathname === item.to || loc.pathname.startsWith(item.to));
+  const menuData = [
+    { id: 'dashboard', title: 'Dashboard', icon: LayoutDashboard, to: '/' },
 
-  // Auto open submenu on route change
-  const [open, setOpen] = useState(
-    hasSubMenu && item.subMenu.some(sub => sub.to && loc.pathname.startsWith(sub.to))
-  );
+    {
+      id: 'users',
+      title: 'Users',
+      icon: Users,
+      items: [
+        { label: 'All Users', to: '/users/all' },
+        { label: 'Add User', to: '/users/add' },
+        { label: 'Roles & Permissions', to: '/users/roles' },
+      ],
+    },
 
-  useEffect(() => {
-    if (hasSubMenu) {
-      setOpen(item.subMenu.some(sub => sub.to && loc.pathname.startsWith(sub.to)));
-    }
-  }, [loc.pathname]);
+    {
+      id: 'orders',
+      title: 'Orders',
+      icon: FileText,
+      items: [
+        { label: 'All Orders', to: '/orders/all' },
+        { label: 'Pending Orders', to: '/orders/pending' },
+        { label: 'Completed Orders', to: '/orders/completed' },
+        { label: 'New Order', to: '/orders/new' },
+        { label: 'Order Details', to: '/orders/detail' },
+        { label: 'Edit Order', to: '/orders/edit' },
+        { label: 'Order Tracking', to: '/orders/tracking' },
+        { label: 'Returns & Refunds', to: '/orders/returns' },
+      ],
+    },
 
-  // 🔥 Special Case: Logout Button
-  if (item.label === 'Logout') {
-    return (
-      <button
-        onClick={logout}
-        className="flex w-full items-center gap-2 rounded-md p-2 text-left text-red-600 transition hover:bg-red-100 dark:text-red-300 dark:hover:bg-red-900"
-      >
-        {item.icon}
-        <span className="flex-1">Logout</span>
-      </button>
-    );
-  }
+    {
+      id: 'products',
+      title: 'Products',
+      icon: ShoppingBag,
+      items: [
+        { label: 'All Products', to: '/products/all' },
+        { label: 'Add Product', to: '/products/add' },
+        {
+          label: 'Categories',
+          subItems: [
+            { label: 'Electronics', to: '/products/categories/electronics' },
+            { label: 'Clothing', to: '/products/categories/clothing' },
+            { label: 'Accessories', to: '/products/categories/accessories' },
+            { label: 'Brands', to: '/products/categories/brands' },
+            { label: 'Stock Management', to: '/products/categories/stock' },
+            { label: 'Product Reviews', to: '/products/categories/reviews' },
+            { label: 'Attributes (Size, Color etc.)', to: '/products/categories/attributes' }
+          ],
+        },
+        { label: 'Tags', to: '/products/tags' },
+        { label: 'Inventory', to: '/products/inventory' },
+      ],
+    },
+    {
+      id: 'sales',
+      title: 'Sales',
+      icon: DollarSign,
+      items: [
+        { label: 'Discounts', to: '/sales/discounts' },
+        { label: 'Gift Cards', to: '/sales/gift-cards' },
+        { label: 'Loyalty Programs', to: '/sales/loyalty' },
+        { label: 'Affiliates', to: '/sales/affiliates' },
+        { label: 'Return Requests', to: '/sales/returns' },
+        { label: 'Invoices', to: '/sales/invoices' },
+      ],
+    },
+    {
+      id: 'analytics',
+      title: 'Analytics',
+      icon: BarChart3,
+      items: [
+        { label: 'Customer Reports', to: '/analytics/customers' },
+        { label: 'Product Reports', to: '/analytics/products' },
+        { label: 'Revenue Analysis', to: '/analytics/revenue' },
+        { label: 'Sales Report', to: '/analytics/sales' },
+      ],
+    },
 
-  return (
-    <div>
-      {!hasSubMenu ? (
-        <Link
-          to={item.to}
-          className={`flex items-center gap-2 p-2 rounded-md transition 
-            ${isActive
-              ? 'bg-sky-100 dark:bg-sky-900 font-semibold text-sky-700 dark:text-sky-300'
-              : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
-            }`}
+    {
+      id: 'marketing',
+      title: 'Marketing',
+      icon: Megaphone,
+      items: [
+        { label: 'Coupons', to: '/marketing/coupons' },
+        { label: 'Email Campaigns', to: '/marketing/email' },
+        { label: 'Banners', to: '/marketing/banners' },
+        { label: 'SEO Settings', to: '/marketing/seo' },
+        { label: 'Social Media', to: '/marketing/social-media' },
+        { label: 'Affiliate Marketing', to: '/marketing/affiliate' },
+        { label: 'Ad Campaigns', to: '/marketing/ads' },
+        { label: 'Campaigns', to: '/marketing/Campaigns' },
+        { label: 'Popups', to: '/marketing/popups' },
+        { label: 'Newsletter Email Lists', to: '/marketing/newsletter' }
+      ],
+    },
+    {
+      id: 'customers',
+      title: 'Customers',
+      icon: Package,
+      items: [
+        { label: 'All Customers', to: '/customers/all' },
+        { label: 'Customer Groups', to: '/customers/groups' },
+        { label: 'Abandoned Carts', to: '/customers/abandoned-carts' },
+        { label: 'Customer Support', to: '/customers/support' },
+      ],
+    },
+    {
+      id: 'shipping',
+      title: 'Shipping',
+      icon: Truck,
+      items: [
+        { label: 'Shipping Zones', to: '/shipping/zones' },
+        { label: 'Delivery Methods', to: '/shipping/delivery-methods' },
+        { label: 'Carriers', to: '/shipping/carriers' },
+        { label: 'Tracking Config', to: '/shipping/tracking-config' },
+      ],
+    },
+    {
+      id: 'inventory',
+      title: 'Inventory',
+      icon: ShoppingBag,
+      items: [
+        { label: 'Stock Levels', to: '/inventory/stock-levels' },
+        { label: 'Low Stock Alerts', to: '/inventory/low-stock-alerts' },
+        { label: 'Warehouse Management', to: '/inventory/warehouse-management' },
+        { label: 'Suppliers', to: '/inventory/suppliers' },
+      ],
+    },
+
+    {
+      id: 'settings',
+      title: 'Settings',
+      icon: Settings,
+      items: [
+        { label: 'Store Settings', to: '/settings/store' },
+        { label: 'Payment Methods', to: '/settings/payment-methods' },
+        { label: 'Shipping Settings', to: '/settings/shipping' },
+        { label: 'Tax Settings', to: '/settings/tax' },
+        { label: 'User Management', to: '/settings/user-management' },
+        { label: 'Notification Settings', to: '/settings/notifications' },
+        { label: 'API Access', to: '/settings/api-access' },
+        { label: 'Role Management', to: '/settings/role-management' },
+        { label: 'Admin Users', to: '/settings/admin-users' }
+      ],
+    },
+
+    { id: 'logout', title: 'Logout', icon: LogOut, action: () => console.log('Logout clicked') },
+  ];
+
+  const renderItem = (item) => {
+    const hasSub = item.items || item.subItems;
+    const isExpanded = expanded[item.id];
+    const isActive = item.to && location.pathname === item.to;
+
+    if (item.action) {
+      return (
+        <button
+          key={item.id}
+          onClick={item.action}
+          className="flex w-full items-center gap-2 rounded-lg p-3 text-left text-black transition-colors hover:bg-red-50"
         >
-          {item.icon}
-          <span className="flex-1">{item.label}</span>
-        </Link>
-      ) : (
-        <div>
-          <div
-            onClick={() => setOpen(!open)}
-            className={`flex items-center gap-2 p-2 rounded-md cursor-pointer transition
-            ${open
-                ? 'bg-slate-200 dark:bg-slate-700 font-medium'
-                : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
-              }`}
+          {item.icon && <item.icon className="h-5 w-5 text-red-600" />}
+          {item.title}
+        </button>
+      );
+    }
+
+    if (hasSub) {
+      return (
+        <div key={item.id} className="mb-1">
+          <button
+            onClick={() => toggle(item.id)}
+            className={`flex items-center justify-between w-full p-3 rounded-lg text-left transition-colors
+              ${isExpanded ? 'bg-red-50 text-black' : 'hover:bg-red-50 text-black'}`}
           >
-            {item.icon}
-            <span className="flex-1">{item.label}</span>
-            <span>{open ? '▾' : '▸'}</span>
-          </div>
-          {open && (
-            <div className="ml-6 mt-1 space-y-1">
-              {item.subMenu.map((sub, idx) =>
-                sub.subMenu ? (
-                  <SidebarItem key={idx} item={sub} loc={loc} />
-                ) : (
+            <span className="flex items-center gap-2">
+              {item.icon && <item.icon className="h-5 w-5 text-red-600" />}
+              {item.title}
+            </span>
+            {isExpanded ? <ChevronDown className="h-4 w-4 text-red-600" /> : <ChevronRight className="h-4 w-4 text-red-600" />}
+          </button>
+          {isExpanded && (
+            <div className="ml-4 mt-1 space-y-1">
+              {(item.items || item.subItems).map((sub, idx) => {
+                const subActive = sub.to && location.pathname === sub.to;
+                if (sub.subItems) {
+                  return (
+                    <div key={idx} className="ml-2">
+                      <span className="block rounded-lg p-2 pl-4 text-sm font-medium text-black">{sub.label}</span>
+                      {sub.subItems.map((s, i) => (
+                        <Link
+                          key={i}
+                          to={s.to}
+                          className={`block p-2 pl-6 rounded-lg text-sm text-black hover:bg-red-50 transition-colors ${location.pathname === s.to ? 'bg-red-50' : ''}`}
+                        >
+                          {s.label}
+                        </Link>
+                      ))}
+                    </div>
+                  );
+                }
+                return (
                   <Link
-                    key={sub.to}
+                    key={idx}
                     to={sub.to}
-                    className={`block p-2 rounded-md text-sm 
-                    ${loc.pathname === sub.to || loc.pathname.startsWith(sub.to)
-                        ? 'bg-sky-100 dark:bg-sky-900 font-semibold text-sky-700 dark:text-sky-300'
-                        : 'hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
-                      }`}
+                    className={`block p-2 pl-4 rounded-lg text-sm text-black hover:bg-red-50 transition-colors ${subActive ? 'bg-red-50' : ''}`}
                   >
                     {sub.label}
                   </Link>
-                )
-              )}
+                );
+              })}
             </div>
           )}
         </div>
-      )}
-    </div>
-  );
-};
+      );
+    }
 
-export default function Sidebar({ open = true, setOpen }) {
-  const loc = useLocation();
-
-  if (!open) return null;
+    return (
+      <Link
+        key={item.id}
+        to={item.to}
+        className={`flex items-center gap-2 p-3 rounded-lg text-black transition-colors ${isActive ? 'bg-red-50' : 'hover:bg-red-50'}`}
+      >
+        {item.icon && <item.icon className="h-5 w-5 text-red-600" />}
+        {item.title}
+      </Link>
+    );
+  };
 
   return (
-    <aside className="flex min-h-screen w-64 flex-col border-r bg-white dark:border-slate-700 dark:bg-slate-800">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b p-4 dark:border-slate-700">
-        <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-          eCommerce Admin
-        </h1>
-        <button
-          onClick={() => setOpen(o => !o)}
-          className="rounded p-1 transition hover:bg-slate-100 dark:hover:bg-slate-700"
-        >
-          ☰
-        </button>
+    <div className="h-screen w-64 overflow-y-auto border-r border-gray-200 bg-white text-black">
+      <div className="border-b border-gray-200 p-4">
+        <h1 className="text-xl font-bold text-red-600">Admin Panel</h1>
       </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-        {menuItems.map((item, idx) => (
-          <SidebarItem key={idx} item={item} loc={loc} />
-        ))}
-      </nav>
-
-      {/* Footer */}
-      <div className="border-t p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-        v1.0.0
-      </div>
-    </aside>
+      <nav className="p-2">{menuData.map((item) => renderItem(item))}</nav>
+    </div>
   );
 }
