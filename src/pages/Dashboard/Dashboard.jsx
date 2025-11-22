@@ -1,6 +1,4 @@
-// src/pages/Dashboard/Dashboard.jsx
-import React, { useEffect, useState } from "react";
-import { Filter, MoreHorizontal } from "lucide-react";
+import React from "react";
 import {
   TrendingUp, TrendingDown, ShoppingCart, Users, DollarSign,
   Package, CheckCircle, Clock, AlertCircle, ArrowUpRight,
@@ -33,11 +31,11 @@ const Dashboard = () => {
   ];
 
   const salesBreakdownData = [
-    { name: 'Electronics', value: 35, color: '#3b82f6' },
-    { name: 'Clothing', value: 25, color: '#8b5cf6' },
-    { name: 'Food', value: 20, color: '#ec4899' },
-    { name: 'Books', value: 12, color: '#10b981' },
-    { name: 'Other', value: 8, color: '#f59e0b' }
+    { name: 'Electronics', value: 35, color: '#dc2626' },
+    { name: 'Clothing', value: 25, color: '#ef4444' },
+    { name: 'Food', value: 20, color: '#000000' },
+    { name: 'Books', value: 12, color: '#404040' },
+    { name: 'Other', value: 8, color: '#737373' }
   ];
 
   const topProducts = [
@@ -49,10 +47,10 @@ const Dashboard = () => {
   ];
 
   const platforms = [
-    { name: 'Instagram', icon: Instagram, revenue: '$12,450', growth: 18.2, color: 'bg-pink-500' },
-    { name: 'Facebook', icon: Facebook, revenue: '$8,920', growth: -3.5, color: 'bg-blue-600' },
+    { name: 'Instagram', icon: Instagram, revenue: '$12,450', growth: 18.2, color: 'bg-red-600' },
+    { name: 'Facebook', icon: Facebook, revenue: '$8,920', growth: -3.5, color: 'bg-black' },
     { name: 'Google', icon: Globe, revenue: '$15,680', growth: 25.4, color: 'bg-red-500' },
-    { name: 'Dribbble', icon: Globe, revenue: '$5,230', growth: 12.1, color: 'bg-purple-500' }
+    { name: 'Dribbble', icon: Globe, revenue: '$5,230', growth: 12.1, color: 'bg-gray-800' }
   ];
 
   const salesTeam = [
@@ -79,10 +77,10 @@ const Dashboard = () => {
   const KPICard = ({ title, value, change, icon: Icon, trend }) => (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
       <div className="mb-4 flex items-center justify-between">
-        <div className={`p-3 rounded-lg ${trend === 'up' ? 'bg-green-100' : 'bg-red-100'}`}>
-          <Icon className={`w-6 h-6 ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`} />
+        <div className={`p-3 rounded-lg ${trend === 'up' ? 'bg-red-100' : 'bg-gray-100'}`}>
+          <Icon className={`w-6 h-6 ${trend === 'up' ? 'text-red-600' : 'text-gray-600'}`} />
         </div>
-        <div className={`flex items-center gap-1 text-sm font-semibold ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+        <div className={`flex items-center gap-1 text-sm font-semibold ${trend === 'up' ? 'text-red-600' : 'text-gray-600'}`}>
           {trend === 'up' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
           {change}%
         </div>
@@ -122,8 +120,8 @@ const Dashboard = () => {
                 <YAxis stroke="#6b7280" />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={2} />
-                <Line type="monotone" dataKey="orders" stroke="#8b5cf6" strokeWidth={2} />
+                <Line type="monotone" dataKey="sales" stroke="#dc2626" strokeWidth={2} />
+                <Line type="monotone" dataKey="orders" stroke="#000000" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -136,7 +134,7 @@ const Dashboard = () => {
                 <XAxis dataKey="month" stroke="#6b7280" />
                 <YAxis stroke="#6b7280" />
                 <Tooltip />
-                <Bar dataKey="revenue" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="revenue" fill="#dc2626" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -176,8 +174,8 @@ const Dashboard = () => {
               {recentOrders.map((order, idx) => (
                 <div key={idx} className="flex items-center justify-between rounded-lg p-3 transition-colors hover:bg-gray-50">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                      <ShoppingCart className="h-5 w-5 text-blue-600" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+                      <ShoppingCart className="h-5 w-5 text-red-600" />
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">{order.id}</p>
@@ -187,9 +185,9 @@ const Dashboard = () => {
                   <div className="text-right">
                     <p className="font-semibold text-gray-900">{order.amount}</p>
                     <div className="flex items-center gap-2">
-                      <span className={`text-xs px-2 py-1 rounded-full ${order.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                        order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
-                          'bg-yellow-100 text-yellow-700'
+                      <span className={`text-xs px-2 py-1 rounded-full ${order.status === 'Completed' ? 'bg-red-100 text-red-700' :
+                          order.status === 'Processing' ? 'bg-gray-100 text-gray-700' :
+                            'bg-gray-200 text-gray-800'
                         }`}>
                         {order.status}
                       </span>
@@ -226,15 +224,15 @@ const Dashboard = () => {
                     </td>
                     <td className="px-4 py-4 font-semibold text-gray-900">{product.revenue}</td>
                     <td className="px-4 py-4">
-                      <div className={`flex items-center gap-1 ${product.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <div className={`flex items-center gap-1 ${product.growth >= 0 ? 'text-red-600' : 'text-gray-600'}`}>
                         {product.growth >= 0 ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                         <span className="font-semibold">{Math.abs(product.growth)}%</span>
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${product.stock === 'In Stock' ? 'bg-green-100 text-green-700' :
-                        product.stock === 'Low Stock' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${product.stock === 'In Stock' ? 'bg-red-100 text-red-700' :
+                          product.stock === 'Low Stock' ? 'bg-gray-200 text-gray-800' :
+                            'bg-gray-800 text-white'
                         }`}>
                         {product.stock}
                       </span>
@@ -262,7 +260,7 @@ const Dashboard = () => {
                       <p className="text-sm text-gray-600">{platform.revenue}</p>
                     </div>
                   </div>
-                  <div className={`flex items-center gap-1 font-semibold ${platform.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className={`flex items-center gap-1 font-semibold ${platform.growth >= 0 ? 'text-red-600' : 'text-gray-600'}`}>
                     {platform.growth >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                     {Math.abs(platform.growth)}%
                   </div>
@@ -278,7 +276,7 @@ const Dashboard = () => {
                 <div key={idx} className="rounded-lg p-4 transition-colors hover:bg-gray-50">
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500 font-semibold text-white">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-red-600 to-black font-semibold text-white">
                         {member.name.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div>
@@ -288,14 +286,14 @@ const Dashboard = () => {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-gray-900">{member.sales}</p>
-                      <div className={`text-sm font-semibold ${member.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      <div className={`text-sm font-semibold ${member.growth >= 0 ? 'text-red-600' : 'text-gray-600'}`}>
                         {member.growth >= 0 ? '+' : ''}{member.growth}%
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="h-2 flex-1 rounded-full bg-gray-200">
-                      <div className="h-2 rounded-full bg-blue-600" style={{ width: `${member.kpi}%` }}></div>
+                      <div className="h-2 rounded-full bg-red-600" style={{ width: `${member.kpi}%` }}></div>
                     </div>
                     <span className="text-sm font-semibold text-gray-700">{member.kpi}%</span>
                   </div>
@@ -310,7 +308,7 @@ const Dashboard = () => {
           <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm lg:col-span-2">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">Tasks & Todo</h3>
-              <button className="text-sm font-semibold text-blue-600 hover:text-blue-700">View All</button>
+              <button className="text-sm font-semibold text-red-600 hover:text-red-700">View All</button>
             </div>
             <div className="space-y-3">
               {tasks.map((task, idx) => (
@@ -320,8 +318,8 @@ const Dashboard = () => {
                     <p className="font-medium text-gray-900">{task.title}</p>
                     <div className="mt-1 flex items-center gap-2">
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${task.priority === 'high' ? 'bg-red-100 text-red-700' :
-                        task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-green-100 text-green-700'
+                          task.priority === 'medium' ? 'bg-gray-200 text-gray-800' :
+                            'bg-gray-100 text-gray-600'
                         }`}>
                         {task.priority}
                       </span>
@@ -340,7 +338,7 @@ const Dashboard = () => {
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-2 flex items-center justify-between">
                 <h4 className="font-semibold text-gray-900">Refunds</h4>
-                <AlertCircle className="h-5 w-5 text-orange-500" />
+                <AlertCircle className="h-5 w-5 text-red-500" />
               </div>
               <p className="mb-1 text-3xl font-bold text-gray-900">23</p>
               <p className="text-sm text-gray-600">Pending review</p>
@@ -349,7 +347,7 @@ const Dashboard = () => {
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-2 flex items-center justify-between">
                 <h4 className="font-semibold text-gray-900">Support Tickets</h4>
-                <Clock className="h-5 w-5 text-blue-500" />
+                <Clock className="h-5 w-5 text-gray-500" />
               </div>
               <p className="mb-1 text-3xl font-bold text-gray-900">12</p>
               <p className="text-sm text-gray-600">Open tickets</p>
@@ -358,7 +356,7 @@ const Dashboard = () => {
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-2 flex items-center justify-between">
                 <h4 className="font-semibold text-gray-900">Approvals</h4>
-                <CheckCircle className="h-5 w-5 text-green-500" />
+                <CheckCircle className="h-5 w-5 text-red-500" />
               </div>
               <p className="mb-1 text-3xl font-bold text-gray-900">8</p>
               <p className="text-sm text-gray-600">Pending approval</p>
@@ -378,21 +376,21 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Server className="h-5 w-5 text-green-500" />
+                <Server className="h-5 w-5 text-red-500" />
                 <div>
                   <p className="text-sm text-gray-600">Server Status</p>
-                  <p className="font-semibold text-green-600">Online</p>
+                  <p className="font-semibold text-red-600">Online</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Info className="h-5 w-5 text-blue-500" />
+                <Info className="h-5 w-5 text-gray-500" />
                 <div>
                   <p className="text-sm text-gray-600">Version</p>
                   <p className="font-semibold text-gray-900">v2.4.1</p>
                 </div>
               </div>
             </div>
-            <button className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-700">
+            <button className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white transition-colors hover:bg-red-700">
               Refresh Data
             </button>
           </div>
