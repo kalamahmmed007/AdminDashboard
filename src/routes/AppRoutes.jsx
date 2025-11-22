@@ -40,6 +40,11 @@ import ProductReports from '../pages/Analytics/ProductReports';
 import RevenueAnalysis from '../pages/Analytics/RevenueAnalysis';
 import SalesReport from '../pages/Analytics/SalesReport';
 
+//Inventory
+import LowStockAlerts from "../pages/Inventory/lowstockalerts";
+import StockLevels from "../pages/Inventory/stocklevels";
+import WarehouseManagement from "../pages/Inventory/warehousemanagement";
+import Suppliers from '../pages/Inventory/suppliers';
 // Marketing
 import Coupons from '../pages/Marketing/Coupons';
 import EmailCampaign from '../pages/Marketing/EmailCampaign';
@@ -120,6 +125,14 @@ export default function AppRoutes() {
                     <Route path="coupons" element={<Coupons />} />
                     <Route path="email" element={<EmailCampaign />} />
                     <Route path="banners" element={<Banners />} />
+                </Route>
+
+                {/* Inventory */}
+                <Route path="inventory" element={<Outlet />}>
+                    <Route path="low-stock-alerts" element={<LowStockAlerts />} />
+                    <Route path="stock-levels" element={<StockLevels />} />
+                    <Route path="warehouse-management" element={<WarehouseManagement />} />
+                    <Route path="suppliers" element={<Suppliers />} />
                 </Route>
 
                 {/* Settings */}

@@ -73,7 +73,6 @@ export default function Sidebar() {
         { label: 'Stock Management', to: '/products/stock-management' },
         { label: 'Product Reviews', to: '/products/productreview' },
         { label: 'Tags', to: '/products/tags' },
-        { label: 'Inventory', to: '/products/inventory' },
       ],
     },
     {
