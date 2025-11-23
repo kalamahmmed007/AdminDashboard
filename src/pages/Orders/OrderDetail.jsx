@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { OrdersService } from "../../services/orders";
-import { formatPrice } from "../../utils/formatPrice";
-import { jsPDF } from "jspdf";
-import OrderTimeline from "../../components/Orders/OrderTimeline";
 import { ArrowLeft, Package, Truck, CheckCircle, Clock, MapPin, User, Mail, Phone, CreditCard, Calendar, Download, Printer, Edit, MessageSquare, AlertCircle, X } from 'lucide-react';
 
 export default function OrderDetails() {

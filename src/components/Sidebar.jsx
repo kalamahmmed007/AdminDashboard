@@ -110,9 +110,9 @@ export default function Sidebar() {
         { label: 'Banners', to: '/marketing/banners' },
         { label: 'SEO Settings', to: '/marketing/seo' },
         { label: 'Social Media', to: '/marketing/social-media' },
-        { label: 'Affiliate Marketing', to: '/marketing/affiliate' },
-        { label: 'Ad Campaigns', to: '/marketing/ads' },
-        { label: 'Campaigns', to: '/marketing/Campaigns' },
+        { label: 'Affiliate Marketing', to: '/marketing/affiliate-marketing' },
+        { label: 'Ad Campaigns', to: '/marketing/ad-campaigns' },
+        { label: 'Campaigns', to: '/marketing/campaigns' },
         { label: 'Popups', to: '/marketing/popups' },
         { label: 'Newsletter Email Lists', to: '/marketing/newsletter' }
       ],

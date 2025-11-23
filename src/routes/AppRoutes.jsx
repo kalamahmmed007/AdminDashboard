@@ -49,6 +49,9 @@ import Suppliers from '../pages/Inventory/suppliers';
 import Coupons from '../pages/Marketing/Coupons';
 import EmailCampaign from '../pages/Marketing/EmailCampaign';
 import Banners from '../pages/Marketing/Banners';
+import AdCampaigns from '../pages/Marketing/Adcampaigns';
+import Affilatemarketing from '../pages/Marketing/Affilatemarketing';
+import Campaigns from '../pages/Marketing/Campaigns';
 
 // Settings
 import Settings from '../pages/Settings';
@@ -125,6 +128,9 @@ export default function AppRoutes() {
                     <Route path="coupons" element={<Coupons />} />
                     <Route path="email" element={<EmailCampaign />} />
                     <Route path="banners" element={<Banners />} />
+                    <Route path="ad-campaigns" element={<AdCampaigns />} />
+                    <Route path="campaigns" element={<Campaigns />} />
+                    <Route path="affiliate-marketing" element={<Affilatemarketing />} />
                 </Route>
 
                 {/* Inventory */}
