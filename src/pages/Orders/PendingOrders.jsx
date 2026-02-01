@@ -1,10 +1,7 @@
 // src/pages/Orders/PendingOrders.jsx
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchOrders,
-  updateOrder,
-} from "../../redux/slices/orderSlice";
+import { fetchOrders, updateOrder } from "../../redux/slices/orderSlice";
 import {
   Printer,
   Search,
@@ -18,20 +15,22 @@ import {
   DollarSign,
   User,
 } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 export default function PendingOrders() {
   const dispatch = useDispatch();
-  const { items: orders } = useSelector((state) => state.orders);
+  const { items: orders, loading } = useSelector((state) => state.orders);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [sortBy, setSortBy] = useState("newest");
 
-  // Fetch pending orders from Redux
+  // Fetch pending orders
   useEffect(() => {
     dispatch(fetchOrders({ status: "pending" }));
   }, [dispatch]);
 
+  // Toggle order selection
   const toggleOrderSelection = (orderId) => {
     setSelectedOrders((prev) =>
       prev.includes(orderId)
@@ -48,29 +47,54 @@ export default function PendingOrders() {
     }
   };
 
-  const approveOrder = (orderId) => {
-    dispatch(updateOrder({ id: orderId, payload: { status: "completed", completedDate: new Date().toISOString() } }));
-    setSelectedOrders((prev) => prev.filter((id) => id !== orderId));
+  // Approve a single order
+  const approveOrder = async (orderId) => {
+    try {
+      await dispatch(
+        updateOrder({
+          id: orderId,
+          payload: { status: "completed", completedDate: new Date().toISOString() },
+        })
+      ).unwrap();
+      toast.success("✅ Order marked as completed!");
+      setSelectedOrders((prev) => prev.filter((id) => id !== orderId));
+    } catch (err) {
+      toast.error("❌ Failed to approve order.");
+    }
   };
 
-  const rejectOrder = (orderId) => {
-    dispatch(updateOrder({ id: orderId, payload: { status: "rejected" } }));
-    setSelectedOrders((prev) => prev.filter((id) => id !== orderId));
+  // Reject a single order
+  const rejectOrder = async (orderId) => {
+    try {
+      await dispatch(
+        updateOrder({
+          id: orderId,
+          payload: { status: "rejected" },
+        })
+      ).unwrap();
+      toast.error("❌ Order rejected.");
+      setSelectedOrders((prev) => prev.filter((id) => id !== orderId));
+    } catch (err) {
+      toast.error("❌ Failed to reject order.");
+    }
   };
 
-  const bulkApprove = () => {
-    selectedOrders.forEach((orderId) =>
-      approveOrder(orderId)
-    );
+  // Bulk approve selected orders
+  const bulkApprove = async () => {
+    for (const orderId of selectedOrders) {
+      await approveOrder(orderId);
+    }
+    setSelectedOrders([]);
   };
 
+  // Priority helpers
   const getPriorityColor = (priority) => {
     const colors = {
       urgent: "bg-red-100 text-red-800 border-red-300",
       high: "bg-orange-100 text-orange-800 border-orange-300",
       normal: "bg-blue-100 text-blue-800 border-blue-300",
     };
-    return colors[priority];
+    return colors[priority] || colors.normal;
   };
 
   const getPriorityIcon = (priority) => {
@@ -79,6 +103,7 @@ export default function PendingOrders() {
     return null;
   };
 
+  // Filter & sort orders
   const filteredOrders = (orders || [])
     .filter((order) => order.status === "pending")
     .filter(
@@ -91,8 +116,8 @@ export default function PendingOrders() {
   const sortedOrders = [...filteredOrders].sort((a, b) => {
     if (sortBy === "newest") return b.hoursWaiting - a.hoursWaiting;
     if (sortBy === "oldest") return a.hoursWaiting - b.hoursWaiting;
-    if (sortBy === "amount-high") return parseFloat(b.total.slice(1)) - parseFloat(a.total.slice(1));
-    if (sortBy === "amount-low") return parseFloat(a.total.slice(1)) - parseFloat(b.total.slice(1));
+    if (sortBy === "amount-high") return parseFloat(b.total) - parseFloat(a.total);
+    if (sortBy === "amount-low") return parseFloat(a.total) - parseFloat(b.total);
     return 0;
   });
 
@@ -100,7 +125,17 @@ export default function PendingOrders() {
   const totalPending = filteredOrders.length;
   const urgentCount = filteredOrders.filter((o) => o.priority === "urgent").length;
   const highCount = filteredOrders.filter((o) => o.priority === "high").length;
-  const pendingValue = filteredOrders.reduce((sum, o) => sum + parseFloat(o.total.slice(1)), 0).toFixed(2);
+  const pendingValue = filteredOrders
+    .reduce((sum, o) => sum + (parseFloat(o.total) || 0), 0)
+    .toFixed(2);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Clock className="h-16 w-16 animate-spin text-yellow-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -176,8 +211,8 @@ export default function PendingOrders() {
               onChange={(e) => setSortBy(e.target.value)}
               className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-yellow-500"
             >
-              <option value="newest">Oldest First</option>
-              <option value="oldest">Newest First</option>
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
               <option value="amount-high">Amount: High to Low</option>
               <option value="amount-low">Amount: Low to High</option>
             </select>
@@ -215,7 +250,7 @@ export default function PendingOrders() {
                     <span className="text-lg font-semibold text-blue-600">{order.id}</span>
                     <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded border ${getPriorityColor(order.priority)}`}>
                       {getPriorityIcon(order.priority)}
-                      {order.priority.toUpperCase()}
+                      {order.priority?.toUpperCase() || "NORMAL"}
                     </span>
                     {order.hoursWaiting > 24 && (
                       <span className="inline-flex items-center gap-1 rounded border border-red-200 bg-red-50 px-2 py-1 text-xs font-medium text-red-700">
@@ -224,7 +259,7 @@ export default function PendingOrders() {
                       </span>
                     )}
                   </div>
-                  <span className="text-2xl font-bold text-gray-900">{order.total}</span>
+                  <span className="text-2xl font-bold text-gray-900">${order.total}</span>
                 </div>
 
                 <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -248,7 +283,7 @@ export default function PendingOrders() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Items</p>
-                    <p className="text-sm font-medium text-gray-900">{order.items} item(s)</p>
+                    <p className="text-sm font-medium text-gray-900">{order.items?.length || order.items} item(s)</p>
                   </div>
                 </div>
 
