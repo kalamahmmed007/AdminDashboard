@@ -1,86 +1,59 @@
 // src/pages/Orders/PendingOrders.jsx
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Printer } from 'lucide-react';
-import debounce from 'lodash.debounce';
-import { Search, Filter, Download, Eye, CheckCircle, XCircle, Clock, AlertCircle, Calendar, DollarSign, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Printer, Search, Download, Eye, CheckCircle, XCircle, Clock, AlertCircle, Calendar, DollarSign, User } from 'lucide-react';
 
 export default function PendingOrders() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedOrders, setSelectedOrders] = useState([]);
     const [sortBy, setSortBy] = useState('newest');
+    const [orders, setOrders] = useState([]); // ✅ safe initial state
 
-    const pendingOrders = [
-        {
-            id: '#ORD-2024-003',
-            customer: 'Mike Johnson',
-            email: 'mike@example.com',
-            phone: '+1 234-567-8900',
-            date: '2024-11-21',
-            time: '10:30 AM',
-            total: '$125.00',
-            items: 1,
-            payment: 'Pending',
-            paymentMethod: 'Bank Transfer',
-            priority: 'high',
-            hoursWaiting: 26
-        },
-        {
-            id: '#ORD-2024-007',
-            customer: 'Jennifer Wilson',
-            email: 'jennifer@example.com',
-            phone: '+1 234-567-8901',
-            date: '2024-11-22',
-            time: '09:15 AM',
-            total: '$678.00',
-            items: 4,
-            payment: 'Pending',
-            paymentMethod: 'Cash on Delivery',
-            priority: 'normal',
-            hoursWaiting: 3
-        },
-        {
-            id: '#ORD-2024-008',
-            customer: 'Robert Taylor',
-            email: 'robert@example.com',
-            phone: '+1 234-567-8902',
-            date: '2024-11-22',
-            time: '11:45 AM',
-            total: '$234.50',
-            items: 2,
-            payment: 'Pending',
-            paymentMethod: 'Credit Card',
-            priority: 'urgent',
-            hoursWaiting: 1
-        },
-        {
-            id: '#ORD-2024-009',
-            customer: 'Amanda Garcia',
-            email: 'amanda@example.com',
-            phone: '+1 234-567-8903',
-            date: '2024-11-22',
-            time: '08:20 AM',
-            total: '$445.00',
-            items: 3,
-            payment: 'Pending',
-            paymentMethod: 'PayPal',
-            priority: 'normal',
-            hoursWaiting: 4
-        },
-        {
-            id: '#ORD-2024-010',
-            customer: 'Christopher Martinez',
-            email: 'chris@example.com',
-            phone: '+1 234-567-8904',
-            date: '2024-11-20',
-            time: '03:30 PM',
-            total: '$892.00',
-            items: 6,
-            payment: 'Pending',
-            paymentMethod: 'Bank Transfer',
-            priority: 'high',
-            hoursWaiting: 45
+    // Fetch pending orders from API
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const res = await axios.get('/api/orders?status=pending'); // adjust API path
+                const data = res.data;
+                setOrders(Array.isArray(data) ? data : data.orders || []);
+            } catch (err) {
+                console.error('Error fetching orders:', err);
+                setOrders([]);
+            }
+        };
+        fetchOrders();
+    }, []);
+
+    const toggleOrderSelection = (orderId) => {
+        setSelectedOrders(prev =>
+            prev.includes(orderId)
+                ? prev.filter(id => id !== orderId)
+                : [...prev, orderId]
+        );
+    };
+
+    const toggleAllOrders = () => {
+        if (selectedOrders.length === orders.length) {
+            setSelectedOrders([]);
+        } else {
+            setSelectedOrders(orders.map(order => order.id));
         }
-    ];
+    };
+
+    const approveOrder = (orderId) => {
+        console.log('Approving order:', orderId);
+        // API call to approve order
+    };
+
+    const rejectOrder = (orderId) => {
+        console.log('Rejecting order:', orderId);
+        // API call to reject order
+    };
+
+    const bulkApprove = () => {
+        console.log('Bulk approving:', selectedOrders);
+        // API call to approve multiple orders
+    };
 
     const getPriorityColor = (priority) => {
         const colors = {
@@ -97,41 +70,11 @@ export default function PendingOrders() {
         return null;
     };
 
-    const toggleOrderSelection = (orderId) => {
-        setSelectedOrders(prev =>
-            prev.includes(orderId)
-                ? prev.filter(id => id !== orderId)
-                : [...prev, orderId]
-        );
-    };
-
-    const toggleAllOrders = () => {
-        if (selectedOrders.length === pendingOrders.length) {
-            setSelectedOrders([]);
-        } else {
-            setSelectedOrders(pendingOrders.map(order => order.id));
-        }
-    };
-
-    const approveOrder = (orderId) => {
-        console.log('Approving order:', orderId);
-        // Add approval logic here
-    };
-
-    const rejectOrder = (orderId) => {
-        console.log('Rejecting order:', orderId);
-        // Add rejection logic here
-    };
-
-    const bulkApprove = () => {
-        console.log('Bulk approving:', selectedOrders);
-        // Add bulk approval logic here
-    };
-
-    const filteredOrders = pendingOrders.filter(order =>
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.email.toLowerCase().includes(searchTerm.toLowerCase())
+    // Filter & sort
+    const filteredOrders = (orders || []).filter(order =>
+        order.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const sortedOrders = [...filteredOrders].sort((a, b) => {
@@ -141,6 +84,12 @@ export default function PendingOrders() {
         if (sortBy === 'amount-low') return parseFloat(a.total.slice(1)) - parseFloat(b.total.slice(1));
         return 0;
     });
+
+    // Total stats
+    const totalPending = orders.length;
+    const urgentCount = orders.filter(o => o.priority === 'urgent').length;
+    const highCount = orders.filter(o => o.priority === 'high').length;
+    const pendingValue = orders.reduce((sum, o) => sum + parseFloat(o.total.slice(1)), 0).toFixed(2);
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -154,7 +103,7 @@ export default function PendingOrders() {
                         </div>
                         <div className="flex items-center gap-2 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-2">
                             <Clock className="h-5 w-5 text-yellow-600" />
-                            <span className="text-sm font-medium text-yellow-800">{pendingOrders.length} Orders Pending</span>
+                            <span className="text-sm font-medium text-yellow-800">{totalPending} Orders Pending</span>
                         </div>
                     </div>
                 </div>
@@ -165,7 +114,7 @@ export default function PendingOrders() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">Total Pending</p>
-                                <p className="text-2xl font-bold text-gray-900">{pendingOrders.length}</p>
+                                <p className="text-2xl font-bold text-gray-900">{totalPending}</p>
                             </div>
                             <Clock className="h-10 w-10 text-yellow-500" />
                         </div>
@@ -174,9 +123,7 @@ export default function PendingOrders() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">Urgent</p>
-                                <p className="text-2xl font-bold text-red-600">
-                                    {pendingOrders.filter(o => o.priority === 'urgent').length}
-                                </p>
+                                <p className="text-2xl font-bold text-red-600">{urgentCount}</p>
                             </div>
                             <AlertCircle className="h-10 w-10 text-red-500" />
                         </div>
@@ -185,9 +132,7 @@ export default function PendingOrders() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">High Priority</p>
-                                <p className="text-2xl font-bold text-orange-600">
-                                    {pendingOrders.filter(o => o.priority === 'high').length}
-                                </p>
+                                <p className="text-2xl font-bold text-orange-600">{highCount}</p>
                             </div>
                             <Clock className="h-10 w-10 text-orange-500" />
                         </div>
@@ -196,9 +141,7 @@ export default function PendingOrders() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-gray-600">Pending Value</p>
-                                <p className="text-2xl font-bold text-gray-900">
-                                    ${pendingOrders.reduce((sum, o) => sum + parseFloat(o.total.slice(1)), 0).toFixed(2)}
-                                </p>
+                                <p className="text-2xl font-bold text-gray-900">${pendingValue}</p>
                             </div>
                             <DollarSign className="h-10 w-10 text-green-500" />
                         </div>
@@ -221,7 +164,7 @@ export default function PendingOrders() {
                                 />
                             </div>
 
-                            {/* Sort and Actions */}
+                            {/* Sort & bulk actions */}
                             <div className="flex items-center gap-3">
                                 <select
                                     value={sortBy}
@@ -254,10 +197,9 @@ export default function PendingOrders() {
 
                     {/* Orders List */}
                     <div className="divide-y divide-gray-200">
-                        {sortedOrders.map((order) => (
+                        {sortedOrders.map(order => (
                             <div key={order.id} className="p-6 transition hover:bg-gray-50">
                                 <div className="flex items-start gap-4">
-                                    {/* Checkbox */}
                                     <input
                                         type="checkbox"
                                         checked={selectedOrders.includes(order.id)}
@@ -265,7 +207,6 @@ export default function PendingOrders() {
                                         className="mt-1 rounded border-gray-300"
                                     />
 
-                                    {/* Order Details */}
                                     <div className="flex-1">
                                         <div className="mb-3 flex items-start justify-between">
                                             <div className="flex items-center gap-3">
