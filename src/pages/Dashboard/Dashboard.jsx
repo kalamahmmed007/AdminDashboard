@@ -1,198 +1,260 @@
 import React, { useState, useEffect } from "react";
 import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  Legend, AreaChart, Area
+  LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
 const Dashboard = () => {
+  const [activeTab, setActiveTab] = useState('monthly');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState(new Date());
-  const [isOnline, setIsOnline] = useState(true);
-  const [error, setError] = useState(null);
-  
-  // State for all dashboard data
   const [dashboardData, setDashboardData] = useState({
-    kpiData: {
-      todaySales: 0,
-      totalOrders: 0,
-      totalRevenue: 0,
-      newCustomers: 0,
-      profitLoss: 0,
-      growthPercent: 0
+    revenue: {
+      current: 0,
+      growth: 0
     },
-    salesTrend: [],
-    salesBreakdown: [],
-    topProducts: [],
-    platforms: [],
-    salesTeam: [],
-    recentOrders: [],
-    tasks: [],
-    stats: {
-      refunds: 0,
-      supportTickets: 0,
-      approvals: 0
+    growthRate: 0,
+    balances: {
+      wallet: 0,
+      walletEarnings: 0,
+      expectedSales: 0,
+      expectedEarnings: 0,
+      funding: 0,
+      fundingEarnings: 0
+    },
+    traffic: {
+      percentage: {
+        facebook: 0,
+        youtube: 0,
+        directSearch: 0
+      },
+      chartData: []
+    },
+    revenueChart: [],
+    statusCards: {
+      revenueStatus: { value: 0, period: '', trend: [] },
+      pageView: { value: 0, period: '', trend: [] },
+      socialRate: { value: 0, period: '', trend: [] },
+      marketStatus: { value: 0, period: '', trend: [] }
+    },
+    recentActivities: [],
+    orderStatus: {
+      totalOrders: 0,
+      orders: []
     }
   });
 
-  // API configuration
+  // API Configuration
   const API_BASE_URL = 'https://api.yourdomain.com';
   const API_ENDPOINTS = {
-    kpi: '/api/dashboard/kpi',
-    salesTrend: '/api/dashboard/sales-trend',
-    salesBreakdown: '/api/dashboard/sales-breakdown',
-    topProducts: '/api/dashboard/top-products',
-    platforms: '/api/dashboard/platforms',
-    salesTeam: '/api/dashboard/sales-team',
-    recentOrders: '/api/dashboard/recent-orders',
-    tasks: '/api/dashboard/tasks',
-    stats: '/api/dashboard/stats'
+    revenue: '/api/dashboard/revenue',
+    balances: '/api/dashboard/balances',
+    traffic: '/api/dashboard/traffic',
+    revenueChart: '/api/dashboard/revenue-chart',
+    statusCards: '/api/dashboard/status-cards',
+    activities: '/api/dashboard/activities',
+    orders: '/api/dashboard/orders'
   };
 
-  // Fetch data from API
+  // Fetch Dashboard Data
   const fetchDashboardData = async () => {
     setIsRefreshing(true);
-    setError(null);
-
     try {
       const [
-        kpiRes, salesTrendRes, salesBreakdownRes, topProductsRes,
-        platformsRes, salesTeamRes, recentOrdersRes, tasksRes, statsRes
+        revenueRes, balancesRes, trafficRes, revenueChartRes,
+        statusCardsRes, activitiesRes, ordersRes
       ] = await Promise.all([
-        fetch(`${API_BASE_URL}${API_ENDPOINTS.kpi}`),
-        fetch(`${API_BASE_URL}${API_ENDPOINTS.salesTrend}`),
-        fetch(`${API_BASE_URL}${API_ENDPOINTS.salesBreakdown}`),
-        fetch(`${API_BASE_URL}${API_ENDPOINTS.topProducts}`),
-        fetch(`${API_BASE_URL}${API_ENDPOINTS.platforms}`),
-        fetch(`${API_BASE_URL}${API_ENDPOINTS.salesTeam}`),
-        fetch(`${API_BASE_URL}${API_ENDPOINTS.recentOrders}`),
-        fetch(`${API_BASE_URL}${API_ENDPOINTS.tasks}`),
-        fetch(`${API_BASE_URL}${API_ENDPOINTS.stats}`)
+        fetch(`${API_BASE_URL}${API_ENDPOINTS.revenue}`),
+        fetch(`${API_BASE_URL}${API_ENDPOINTS.balances}`),
+        fetch(`${API_BASE_URL}${API_ENDPOINTS.traffic}`),
+        fetch(`${API_BASE_URL}${API_ENDPOINTS.revenueChart}`),
+        fetch(`${API_BASE_URL}${API_ENDPOINTS.statusCards}`),
+        fetch(`${API_BASE_URL}${API_ENDPOINTS.activities}`),
+        fetch(`${API_BASE_URL}${API_ENDPOINTS.orders}`)
       ]);
 
       const [
-        kpiData, salesTrend, salesBreakdown, topProducts,
-        platforms, salesTeam, recentOrders, tasks, stats
+        revenue, balances, traffic, revenueChart,
+        statusCards, activities, orders
       ] = await Promise.all([
-        kpiRes.json(), salesTrendRes.json(), salesBreakdownRes.json(),
-        topProductsRes.json(), platformsRes.json(), salesTeamRes.json(),
-        recentOrdersRes.json(), tasksRes.json(), statsRes.json()
+        revenueRes.json(), balancesRes.json(), trafficRes.json(),
+        revenueChartRes.json(), statusCardsRes.json(), activitiesRes.json(),
+        ordersRes.json()
       ]);
 
       setDashboardData({
-        kpiData, salesTrend, salesBreakdown, topProducts,
-        platforms, salesTeam, recentOrders, tasks, stats
+        revenue,
+        growthRate: revenue.growth,
+        balances,
+        traffic,
+        revenueChart,
+        statusCards,
+        recentActivities: activities,
+        orderStatus: orders
       });
-
-      setLastUpdate(new Date());
-      setIsOnline(true);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
-      setError(err.message);
-      setIsOnline(false);
       loadMockData();
     } finally {
       setIsRefreshing(false);
     }
   };
 
-  // Mock data for development/testing
+  // Mock Data
   const loadMockData = () => {
     setDashboardData({
-      kpiData: {
-        todaySales: 12426,
-        totalOrders: 1245,
-        totalRevenue: 89542,
-        newCustomers: 342,
-        profitLoss: 23456,
-        growthPercent: 24.8
+      revenue: {
+        current: 3468.96,
+        growth: 2.65
       },
-      salesTrend: [
-        { month: 'Jan', sales: 4200, orders: 120, revenue: 12000 },
-        { month: 'Feb', sales: 3800, orders: 98, revenue: 15000 },
-        { month: 'Mar', sales: 5100, orders: 145, revenue: 18000 },
-        { month: 'Apr', sales: 6200, orders: 178, revenue: 22000 },
-        { month: 'May', sales: 5800, orders: 165, revenue: 19000 },
-        { month: 'Jun', sales: 7200, orders: 210, revenue: 25000 }
+      growthRate: 82,
+      balances: {
+        wallet: 4667.63,
+        walletEarnings: 12.5,
+        expectedSales: 2683.53,
+        expectedEarnings: -8.3,
+        funding: 892667.63,
+        fundingEarnings: 15.2
+      },
+      traffic: {
+        percentage: {
+          facebook: 33,
+          youtube: 55,
+          directSearch: 12
+        },
+        chartData: [
+          { name: 'Facebook', value: 33, color: '#e91e63' },
+          { name: 'YouTube', value: 55, color: '#9c27b0' },
+          { name: 'Direct Search', value: 12, color: '#ffc107' }
+        ]
+      },
+      revenueChart: [
+        { month: 'Jan', value: 20 },
+        { month: 'Feb', value: 35 },
+        { month: 'Mar', value: 25 },
+        { month: 'Apr', value: 45 },
+        { month: 'May', value: 30 },
+        { month: 'Jun', value: 55 },
+        { month: 'Jul', value: 40 },
+        { month: 'Aug', value: 65 },
+        { month: 'Sep', value: 50 },
+        { month: 'Oct', value: 70 },
+        { month: 'Nov', value: 60 },
+        { month: 'Dec', value: 75 }
       ],
-      salesBreakdown: [
-        { name: 'Electronics', value: 35, color: '#3b82f6' },
-        { name: 'Clothing', value: 25, color: '#8b5cf6' },
-        { name: 'Food', value: 20, color: '#ec4899' },
-        { name: 'Books', value: 12, color: '#f59e0b' },
-        { name: 'Other', value: 8, color: '#10b981' }
+      statusCards: {
+        revenueStatus: {
+          value: 432,
+          period: 'Jan 01 - Jan 10',
+          trend: [20, 35, 25, 45, 30, 50, 40, 60]
+        },
+        pageView: {
+          value: 432,
+          period: 'Jan 01 - Jan 10',
+          trend: [30, 40, 35, 50, 45, 60, 55, 70]
+        },
+        socialRate: {
+          value: 432,
+          period: 'Jan 01 - Jan 10',
+          trend: [25, 30, 35, 40, 50, 45, 55, 60]
+        },
+        marketStatus: {
+          value: 432,
+          period: 'Jan 01 - Jan 10',
+          trend: [40, 30, 45, 35, 50, 60, 55, 65]
+        }
+      },
+      recentActivities: [
+        { id: 1, title: 'Task Updated', subtitle: 'Jeroen Updated Task', time: '20 Mins', icon: '📋', color: 'pink' },
+        { id: 2, title: 'Deal Added', subtitle: 'Deals Updated', time: '5 Day Ago', icon: '💼', color: 'purple' },
+        { id: 3, title: 'Undefined Article', subtitle: 'Email Undefined Article', time: '10 Mins Ago', icon: '📧', color: 'blue' },
+        { id: 4, title: 'Dock Updated', subtitle: 'Mail', time: '3 Day Ago', icon: '📬', color: 'yellow' },
+        { id: 5, title: 'Deployed Comment', subtitle: 'Sundae Created Comment', time: '5 Day Ago', icon: '💬', color: 'green' }
       ],
-      topProducts: [
-        { name: 'iPhone 15 Pro', icon: '📱', revenue: 45200, growth: 12.5, stock: 'In Stock', color: '#3b82f6' },
-        { name: 'MacBook Air M2', icon: '💻', revenue: 38900, growth: 8.3, stock: 'In Stock', color: '#8b5cf6' },
-        { name: 'AirPods Pro', icon: '🎧', revenue: 22400, growth: -2.1, stock: 'Low Stock', color: '#ec4899' },
-        { name: 'iPad Pro', icon: '📱', revenue: 19800, growth: 15.7, stock: 'In Stock', color: '#6366f1' },
-        { name: 'Apple Watch', icon: '⌚', revenue: 16300, growth: 5.2, stock: 'Out of Stock', color: '#f59e0b' }
-      ],
-      platforms: [
-        { name: 'Instagram', icon: '📷', revenue: 12450, growth: 18.2, color: '#e1306c' },
-        { name: 'Facebook', icon: '👥', revenue: 8920, growth: -3.5, color: '#1877f2' },
-        { name: 'Twitter', icon: '🐦', revenue: 15680, growth: 25.4, color: '#1da1f2' },
-        { name: 'LinkedIn', icon: '💼', revenue: 5230, growth: 12.1, color: '#0a66c2' }
-      ],
-      salesTeam: [
-        { name: 'Sarah Johnson', sales: 48200, kpi: 95, growth: 12.5, deals: 24, avatar: 'SJ' },
-        { name: 'Mike Chen', sales: 42800, kpi: 88, growth: 8.3, deals: 21, avatar: 'MC' },
-        { name: 'Emily Davis', sales: 39500, kpi: 82, growth: -2.1, deals: 18, avatar: 'ED' },
-        { name: 'James Wilson', sales: 36200, kpi: 78, growth: 15.7, deals: 19, avatar: 'JW' }
-      ],
-      recentOrders: [
-        { id: '#ORD-2451', customer: 'John Doe', amount: 245, status: 'Completed', time: '2 min ago' },
-        { id: '#ORD-2452', customer: 'Jane Smith', amount: 189, status: 'Processing', time: '5 min ago' },
-        { id: '#ORD-2453', customer: 'Bob Johnson', amount: 432, status: 'Pending', time: '12 min ago' },
-        { id: '#ORD-2454', customer: 'Alice Brown', amount: 156, status: 'Completed', time: '18 min ago' }
-      ],
-      tasks: [
-        { title: 'Review new supplier contracts', priority: 'high', time: 'Due in 2 hours' },
-        { title: 'Approve inventory purchase orders', priority: 'medium', time: 'Due today' },
-        { title: 'Update product descriptions', priority: 'low', time: 'Due tomorrow' },
-        { title: 'Customer feedback analysis', priority: 'medium', time: 'Due in 3 days' }
-      ],
-      stats: {
-        refunds: 23,
-        supportTickets: 12,
-        approvals: 8
+      orderStatus: {
+        totalOrders: 124,
+        orders: [
+          { id: '12345', customer: 'Cindy Dunn', from: 'Brazil', price: '$250', status: 'Medium' },
+          { id: '12346', customer: 'Yoana', from: 'Italy', price: '$2400', status: 'Done' },
+          { id: '12347', customer: 'Denzyl Cosh', from: 'Russia', price: '$865', status: 'Low' },
+          { id: '12348', customer: 'Belgin Bastark', from: 'Jordan', price: '$645', status: 'Medium' },
+          { id: '12349', customer: 'Jack Daunds', from: 'Spain', price: '$2,650', status: 'High' }
+        ]
       }
     });
   };
 
-  // Initial data load
   useEffect(() => {
     fetchDashboardData();
-  }, []);
-
-  // Auto-refresh every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchDashboardData();
-    }, 30000);
+    const interval = setInterval(fetchDashboardData, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  const getTimeSinceUpdate = () => {
-    const seconds = Math.floor((new Date() - lastUpdate) / 1000);
-    if (seconds < 60) return `${seconds} seconds ago`;
-    const minutes = Math.floor(seconds / 60);
-    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-  };
-
-  const KPICard = ({ title, value, change, icon, trend }) => (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="text-3xl">{icon}</div>
-        <div className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${
-          trend === 'up' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-        }`}>
-          {trend === 'up' ? '↑' : '↓'} {change}%
-        </div>
+  const BalanceCard = ({ icon, title, amount, earnings, color }) => (
+    <div className="flex items-center gap-3 rounded-xl bg-white p-4 transition-all hover:shadow-md">
+      <div className={`flex h-12 w-12 items-center justify-center rounded-full text-2xl ${
+        color === 'pink' ? 'bg-pink-100' :
+        color === 'purple' ? 'bg-purple-100' :
+        color === 'blue' ? 'bg-blue-100' :
+        'bg-yellow-100'
+      }`}>
+        {icon}
       </div>
-      <p className="mb-2 text-sm font-medium text-gray-600">{title}</p>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
+      <div className="flex-1">
+        <p className="text-xs font-medium text-gray-500">{title}</p>
+        <p className="text-lg font-bold text-gray-900">{amount}</p>
+      </div>
+      <div className={`text-xs font-bold ${earnings >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+        {earnings >= 0 ? '▲' : '▼'} {Math.abs(earnings)}%
+      </div>
+    </div>
+  );
+
+  const StatusCard = ({ title, value, period, trend, color, icon }) => (
+    <div className={`overflow-hidden rounded-2xl p-6 text-white shadow-lg ${
+      color === 'pink' ? 'bg-gradient-to-br from-pink-400 to-pink-600' :
+      color === 'purple' ? 'bg-gradient-to-br from-purple-400 to-purple-600' :
+      color === 'blue' ? 'bg-gradient-to-br from-blue-400 to-blue-600' :
+      'bg-gradient-to-br from-orange-400 to-orange-600'
+    }`}>
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-sm font-semibold opacity-90">{title}</h3>
+        {icon && <span className="text-2xl">{icon}</span>}
+      </div>
+      <div className="mb-2 flex items-baseline gap-2">
+        <span className="text-3xl font-bold">${value}</span>
+        {color === 'blue' && (
+          <span className="rounded-full bg-white/20 px-2 py-1 text-xs font-semibold">
+            Monthly
+          </span>
+        )}
+      </div>
+      <p className="mb-4 text-xs opacity-80">{period}</p>
+      {trend && (
+        <ResponsiveContainer width="100%" height={40}>
+          <AreaChart data={trend.map((v, i) => ({ value: v }))}>
+            <Area type="monotone" dataKey="value" stroke="white" fill="white" fillOpacity={0.3} strokeWidth={2} />
+          </AreaChart>
+        </ResponsiveContainer>
+      )}
+    </div>
+  );
+
+  const ActivityItem = ({ title, subtitle, time, icon, color }) => (
+    <div className="flex items-center gap-3 py-3">
+      <div className={`flex h-10 w-10 items-center justify-center rounded-full text-xl ${
+        color === 'pink' ? 'bg-pink-100' :
+        color === 'purple' ? 'bg-purple-100' :
+        color === 'blue' ? 'bg-blue-100' :
+        color === 'yellow' ? 'bg-yellow-100' :
+        'bg-green-100'
+      }`}>
+        {icon}
+      </div>
+      <div className="flex-1">
+        <p className="font-semibold text-gray-900">{title}</p>
+        <p className="text-sm text-gray-500">{subtitle}</p>
+      </div>
+      <p className="text-xs text-gray-400">{time}</p>
     </div>
   );
 
@@ -200,415 +262,251 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="mb-1 text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-            <p className="text-gray-600">Welcome back! Here's what's happening today.</p>
+            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-sm text-gray-500">Overview of latest Month</p>
           </div>
-          <button 
-            onClick={fetchDashboardData}
-            disabled={isRefreshing}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <span className={isRefreshing ? 'animate-spin' : ''}>🔄</span>
-            {isRefreshing ? 'Syncing...' : 'Sync Data'}
-          </button>
-        </div>
-
-        {/* Top KPI Cards */}
-        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <KPICard 
-            title="Today's Sales" 
-            value={`$${dashboardData.kpiData.todaySales.toLocaleString()}`} 
-            change={12.5} 
-            icon="💰" 
-            trend="up"
-          />
-          <KPICard 
-            title="Total Orders" 
-            value={dashboardData.kpiData.totalOrders.toLocaleString()} 
-            change={8.2} 
-            icon="🛒" 
-            trend="up"
-          />
-          <KPICard 
-            title="Total Revenue" 
-            value={`$${dashboardData.kpiData.totalRevenue.toLocaleString()}`} 
-            change={15.3} 
-            icon="💳" 
-            trend="up"
-          />
-          <KPICard 
-            title="New Customers" 
-            value={dashboardData.kpiData.newCustomers} 
-            change={2.4} 
-            icon="👥" 
-            trend="down"
-          />
-          <KPICard 
-            title="Profit / Loss" 
-            value={`$${dashboardData.kpiData.profitLoss.toLocaleString()}`} 
-            change={18.7} 
-            icon="🎯" 
-            trend="up"
-          />
-          <KPICard 
-            title="Growth %" 
-            value={`${dashboardData.kpiData.growthPercent}%`} 
-            change={5.2} 
-            icon="📈" 
-            trend="up"
-          />
-        </div>
-
-        {/* Main Analytics Charts */}
-        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-            <h3 className="mb-6 flex items-center gap-2 text-lg font-bold text-gray-900">
-              📊 Sales & Orders Trend
-            </h3>
-            <ResponsiveContainer width="100%" height={320}>
-              <AreaChart data={dashboardData.salesTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="month" stroke="#6b7280" />
-                <YAxis stroke="#6b7280" />
-                <Tooltip 
-                  contentStyle={{ 
-                    borderRadius: '8px', 
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
-                  }} 
-                />
-                <Legend />
-                <Area type="monotone" dataKey="sales" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} strokeWidth={2} />
-                <Area type="monotone" dataKey="orders" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.2} strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-            <h3 className="mb-6 flex items-center gap-2 text-lg font-bold text-gray-900">
-              💵 Monthly Revenue
-            </h3>
-            <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={dashboardData.salesTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="month" stroke="#6b7280" />
-                <YAxis stroke="#6b7280" />
-                <Tooltip 
-                  contentStyle={{ 
-                    borderRadius: '8px', 
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
-                  }} 
-                />
-                <Bar dataKey="revenue" fill="#10b981" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="flex items-center gap-2">
+            <button className={`px-4 py-2 text-sm font-medium ${activeTab === 'daily' ? 'text-gray-900 border-b-2 border-gray-900' : 'text-gray-500'}`} onClick={() => setActiveTab('daily')}>DAILY</button>
+            <button className={`px-4 py-2 text-sm font-medium ${activeTab === 'weekly' ? 'text-gray-900 border-b-2 border-gray-900' : 'text-gray-500'}`} onClick={() => setActiveTab('weekly')}>WEEKLY</button>
+            <button className={`px-4 py-2 text-sm font-medium ${activeTab === 'monthly' ? 'text-gray-900 border-b-2 border-gray-900' : 'text-gray-500'}`} onClick={() => setActiveTab('monthly')}>MONTHLY</button>
+            <button className={`px-4 py-2 text-sm font-medium ${activeTab === 'yearly' ? 'text-gray-900 border-b-2 border-gray-900' : 'text-gray-500'}`} onClick={() => setActiveTab('yearly')}>YEARLY</button>
           </div>
         </div>
 
-        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Sales Breakdown */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-            <h3 className="mb-6 flex items-center gap-2 text-lg font-bold text-gray-900">
-              📦 Sales Breakdown
-            </h3>
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie 
-                  data={dashboardData.salesBreakdown} 
-                  cx="50%" 
-                  cy="50%" 
-                  innerRadius={60} 
-                  outerRadius={90} 
-                  paddingAngle={5} 
-                  dataKey="value"
-                >
-                  {dashboardData.salesBreakdown.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    borderRadius: '8px', 
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)' 
-                  }} 
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="mt-6 space-y-2">
-              {dashboardData.salesBreakdown.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between rounded p-2 hover:bg-gray-50">
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                    <span className="text-sm font-medium text-gray-700">{item.name}</span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-900">{item.value}%</span>
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Left Column - 2/3 width */}
+          <div className="space-y-6 lg:col-span-2">
+            {/* Revenue Card with Chart */}
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <div className="mb-6 flex items-start justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">${dashboardData.revenue.current}</h2>
+                  <p className="text-sm text-gray-500">Smart Month Earnings</p>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Orders */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg lg:col-span-2">
-            <h3 className="mb-6 flex items-center gap-2 text-lg font-bold text-gray-900">
-              🛍️ Recent Orders
-            </h3>
-            <div className="space-y-3">
-              {dashboardData.recentOrders.map((order, idx) => (
-                <div key={idx} className="flex items-center justify-between rounded-lg border border-gray-100 p-4 transition-all hover:border-blue-200 hover:bg-blue-50">
-                  <div className="flex items-center gap-4">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg text-xl ${
-                      order.status === 'Completed' ? 'bg-green-100' :
-                      order.status === 'Processing' ? 'bg-blue-100' :
-                      'bg-yellow-100'
-                    }`}>
-                      {order.status === 'Completed' ? '✓' : order.status === 'Processing' ? '⏱️' : '⚠️'}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">{order.id}</p>
-                      <p className="text-sm text-gray-600">{order.customer}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-gray-900">${order.amount.toFixed(2)}</p>
-                    <div className="mt-1 flex items-center justify-end gap-2">
-                      <span className={`text-xs font-medium px-2 py-1 rounded ${
-                        order.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                        order.status === 'Processing' ? 'bg-blue-100 text-blue-700' :
-                        'bg-yellow-100 text-yellow-700'
-                      }`}>
-                        {order.status}
-                      </span>
-                      <span className="text-xs text-gray-500">{order.time}</span>
-                    </div>
-                  </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-gray-900">{dashboardData.growthRate}</p>
+                  <p className="text-sm text-gray-500">Growth rate</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
+              </div>
 
-        {/* Top Selling Products */}
-        <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-          <h3 className="mb-6 flex items-center gap-2 text-lg font-bold text-gray-900">
-            🏆 Top Selling Products
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-gray-200">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Product</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Revenue</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Growth</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Stock Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dashboardData.topProducts.map((product, idx) => (
-                  <tr key={idx} className="border-b border-gray-100 transition-colors hover:bg-gray-50">
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="text-2xl">{product.icon}</div>
-                        <span className="font-semibold text-gray-900">{product.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-lg font-bold text-gray-900">${product.revenue.toLocaleString()}</td>
-                    <td className="px-4 py-4">
-                      <div className={`flex items-center gap-1 font-medium ${
-                        product.growth >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {product.growth >= 0 ? '↑' : '↓'}
-                        <span>{Math.abs(product.growth)}%</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        product.stock === 'In Stock' ? 'bg-green-100 text-green-700' :
-                        product.stock === 'Low Stock' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'
-                      }`}>
-                        {product.stock}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+              <ResponsiveContainer width="100%" height={200}>
+                <AreaChart data={dashboardData.revenueChart}>
+                  <defs>
+                    <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f8bbd0" stopOpacity={0.8}/>
+                      <stop offset="50%" stopColor="#ce93d8" stopOpacity={0.5}/>
+                      <stop offset="95%" stopColor="#9575cd" stopOpacity={0.3}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="month" stroke="#999" style={{ fontSize: '12px' }} />
+                  <YAxis stroke="#999" style={{ fontSize: '12px' }} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e0e0e0' }} />
+                  <Area type="monotone" dataKey="value" stroke="#9c27b0" fill="url(#revenueGradient)" strokeWidth={3} />
+                </AreaChart>
+              </ResponsiveContainer>
 
-        {/* Platform Performance & Sales Team */}
-        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-            <h3 className="mb-6 flex items-center gap-2 text-lg font-bold text-gray-900">
-              ⚡ Platform Performance
-            </h3>
-            <div className="space-y-3">
-              {dashboardData.platforms.map((platform, idx) => (
-                <div key={idx} className="flex items-center justify-between rounded-lg border border-gray-100 p-4 transition-all hover:border-blue-200 hover:bg-blue-50">
-                  <div className="flex items-center gap-3">
-                    <div className="text-2xl">{platform.icon}</div>
-                    <div>
-                      <p className="font-semibold text-gray-900">{platform.name}</p>
-                      <p className="text-sm text-gray-600">${platform.revenue.toLocaleString()}</p>
-                    </div>
-                  </div>
-                  <div className={`flex items-center gap-1 font-medium ${
-                    platform.growth >= 0 ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {platform.growth >= 0 ? '↑' : '↓'} {Math.abs(platform.growth)}%
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-            <h3 className="mb-6 flex items-center gap-2 text-lg font-bold text-gray-900">
-              👨‍💼 Sales Team Performance
-            </h3>
-            <div className="space-y-4">
-              {dashboardData.salesTeam.map((member, idx) => (
-                <div key={idx} className="rounded-lg border border-gray-100 p-4 transition-all hover:border-blue-200 hover:bg-blue-50">
-                  <div className="mb-3 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">
-                        {member.avatar}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">{member.name}</p>
-                        <p className="text-sm text-gray-600">{member.deals} deals closed</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-gray-900">${member.sales.toLocaleString()}</p>
-                      <p className={`text-sm font-medium ${
-                        member.growth >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {member.growth >= 0 ? '+' : ''}{member.growth}%
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
-                      <div 
-                        className="h-2 rounded-full bg-blue-600 transition-all duration-500" 
-                        style={{ width: `${member.kpi}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">{member.kpi}%</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Tasks & Quick Stats */}
-        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg lg:col-span-2">
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900">
-                ✓ Tasks & Todo
-              </h3>
-              <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
-                View All
+              <button className="mt-4 rounded-lg bg-pink-500 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-pink-600">
+                DOWNLOAD SUMMARY
               </button>
             </div>
-            <div className="space-y-3">
-              {dashboardData.tasks.map((task, idx) => (
-                <div key={idx} className="flex items-center gap-3 rounded-lg border border-gray-100 p-4 transition-all hover:border-blue-200 hover:bg-blue-50">
-                  <input type="checkbox" className="h-5 w-5 rounded border-gray-300" />
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{task.title}</p>
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className={`px-2 py-1 rounded text-xs font-medium uppercase ${
-                        task.priority === 'high' ? 'bg-red-100 text-red-700' :
-                        task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
-                        {task.priority}
-                      </span>
-                      <span className="text-sm text-gray-600">{task.time}</span>
-                    </div>
+
+            {/* Balance Cards */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <BalanceCard
+                icon="💰"
+                title="Wallet Balance"
+                amount={`$${dashboardData.balances.wallet}`}
+                earnings={dashboardData.balances.walletEarnings}
+                color="pink"
+              />
+              <BalanceCard
+                icon="💼"
+                title="Expected Sales"
+                amount={`$${dashboardData.balances.expectedSales}`}
+                earnings={dashboardData.balances.expectedEarnings}
+                color="blue"
+              />
+              <BalanceCard
+                icon="💳"
+                title="Wallet Earnings"
+                amount={`$${dashboardData.balances.expectedSales}`}
+                earnings={dashboardData.balances.expectedEarnings}
+                color="purple"
+              />
+              <BalanceCard
+                icon="🎯"
+                title="Funding"
+                amount={`$${dashboardData.balances.funding}`}
+                earnings={dashboardData.balances.fundingEarnings}
+                color="yellow"
+              />
+            </div>
+
+            {/* Status Cards */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <StatusCard
+                title="Revenue Status"
+                value={dashboardData.statusCards.revenueStatus.value}
+                period={dashboardData.statusCards.revenueStatus.period}
+                trend={dashboardData.statusCards.revenueStatus.trend}
+                color="pink"
+              />
+              <StatusCard
+                title="Page View"
+                value={dashboardData.statusCards.pageView.value}
+                period={dashboardData.statusCards.pageView.period}
+                trend={dashboardData.statusCards.pageView.trend}
+                color="purple"
+              />
+              <StatusCard
+                title="Social Rate"
+                value={dashboardData.statusCards.socialRate.value}
+                period={dashboardData.statusCards.socialRate.period}
+                trend={dashboardData.statusCards.socialRate.trend}
+                color="blue"
+                icon="📊"
+              />
+              <StatusCard
+                title="Market Status"
+                value={dashboardData.statusCards.marketStatus.value}
+                period={dashboardData.statusCards.marketStatus.period}
+                trend={dashboardData.statusCards.marketStatus.trend}
+                color="orange"
+              />
+            </div>
+
+            {/* Recent Activities */}
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <h3 className="mb-4 text-lg font-bold text-gray-900">Recent Activities</h3>
+              <div className="divide-y divide-gray-100">
+                {dashboardData.recentActivities.map((activity) => (
+                  <ActivityItem key={activity.id} {...activity} />
+                ))}
+              </div>
+            </div>
+
+            {/* Order Status Table */}
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-900">Order Status</h3>
+                <p className="text-sm text-gray-500">Transaction saved March</p>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b-2 border-gray-900">
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-700">INVOICE</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-700">CUSTOMERS</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-700">FROM</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-700">PRICE</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-700">STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dashboardData.orderStatus.orders.map((order) => (
+                      <tr key={order.id} className="border-b border-gray-100">
+                        <td className="px-4 py-4 text-sm font-medium text-gray-900">{order.id}</td>
+                        <td className="px-4 py-4 text-sm text-gray-700">{order.customer}</td>
+                        <td className="px-4 py-4 text-sm text-gray-700">{order.from}</td>
+                        <td className="px-4 py-4 text-sm font-semibold text-gray-900">{order.price}</td>
+                        <td className="px-4 py-4">
+                          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                            order.status === 'High' ? 'bg-pink-100 text-pink-700' :
+                            order.status === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                            order.status === 'Done' ? 'bg-blue-100 text-blue-700' :
+                            'bg-green-100 text-green-700'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <button className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-500 text-white">←</button>
+                <button className="flex h-8 w-8 items-center justify-center rounded-full bg-pink-500 text-sm font-semibold text-white">1</button>
+                <button className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100">2</button>
+                <button className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100">3</button>
+                <button className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100">4</button>
+                <button className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100">5</button>
+                <button className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold text-gray-600 hover:bg-gray-100">6</button>
+                <button className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-600">→</button>
+              </div>
+
+              <p className="mt-4 text-center text-xs text-gray-500">
+                Showing 1 to 10 of {dashboardData.orderStatus.totalOrders} entries
+              </p>
+            </div>
+          </div>
+
+          {/* Right Column - 1/3 width */}
+          <div className="space-y-6">
+            {/* Traffic Card */}
+            <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-900">Traffic</h3>
+                <div className="flex gap-2">
+                  <span className="flex items-center gap-1 text-xs">
+                    <span className="h-2 w-2 rounded-full bg-blue-500"></span> Active
+                  </span>
+                  <span className="flex items-center gap-1 text-xs">
+                    <span className="h-2 w-2 rounded-full bg-green-500"></span> Done
+                  </span>
+                </div>
+              </div>
+
+              <div className="relative mx-auto mb-6 h-48 w-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={dashboardData.traffic.chartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      dataKey="value"
+                      startAngle={90}
+                      endAngle={-270}
+                    >
+                      {dashboardData.traffic.chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-pink-500"></span>
+                    <span className="text-sm font-medium text-gray-700">Facebook</span>
                   </div>
-                  <button className="rounded p-2 hover:bg-gray-100">⋮</button>
+                  <span className="text-sm font-bold text-gray-900">{dashboardData.traffic.percentage.facebook}%</span>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-              <div className="mb-3 flex items-center justify-between">
-                <h4 className="font-semibold text-gray-900">Refunds</h4>
-                <span className="text-2xl">⚠️</span>
-              </div>
-              <p className="text-3xl font-bold text-red-600">{dashboardData.stats.refunds}</p>
-              <p className="mt-1 text-sm text-gray-600">Pending review</p>
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-              <div className="mb-3 flex items-center justify-between">
-                <h4 className="font-semibold text-gray-900">Support Tickets</h4>
-                <span className="text-2xl">🎫</span>
-              </div>
-              <p className="text-3xl font-bold text-blue-600">{dashboardData.stats.supportTickets}</p>
-              <p className="mt-1 text-sm text-gray-600">Open tickets</p>
-            </div>
-
-            <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-lg">
-              <div className="mb-3 flex items-center justify-between">
-                <h4 className="font-semibold text-gray-900">Approvals</h4>
-                <span className="text-2xl">✅</span>
-              </div>
-              <p className="text-3xl font-bold text-green-600">{dashboardData.stats.approvals}</p>
-              <p className="mt-1 text-sm text-gray-600">Pending approval</p>
-            </div>
-          </div>
-        </div>
-
-        {/* System Info */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-6">
-              <div className="flex items-center gap-2">
-                <span className={isRefreshing ? 'animate-spin text-xl' : 'text-xl'}>🔄</span>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Last Updated</p>
-                  <p className="font-semibold text-gray-900">{getTimeSinceUpdate()}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-purple-500"></span>
+                    <span className="text-sm font-medium text-gray-700">YouTube</span>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900">{dashboardData.traffic.percentage.youtube}%</span>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="relative text-xl">
-                  🖥️
-                  <span className={`absolute -top-1 -right-1 h-2 w-2 rounded-full ${
-                    isOnline ? 'bg-green-500' : 'bg-red-500'
-                  }`}></span>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Server Status</p>
-                  <p className="font-semibold text-gray-900">{isOnline ? 'Online' : 'Offline'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl">ℹ️</span>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Version</p>
-                  <p className="font-semibold text-gray-900">v2.4.1</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-yellow-500"></span>
+                    <span className="text-sm font-medium text-gray-700">Direct Search</span>
+                  </div>
+                  <span className="text-sm font-bold text-gray-900">{dashboardData.traffic.percentage.directSearch}%</span>
                 </div>
               </div>
             </div>
-            <button 
-              onClick={fetchDashboardData}
-              disabled={isRefreshing}
-              className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Refresh Data
-            </button>
           </div>
         </div>
       </div>
