@@ -69,6 +69,10 @@ import ApiAccessSettings from '../pages/Settings/APIAccess';
 import RoleManagementSettings from '../pages/Settings/RoleManagement';
 import AdminUsersSettings from '../pages/Settings/AdminUsers';
 
+//Tasks
+import AllTasks from '../pages/Tasks/AllTasks';
+import AddTask from '../pages/Tasks/AddTask';
+
 
 
 
@@ -172,6 +176,13 @@ export default function AppRoutes() {
                     <Route path="api-access" element={<ApiAccessSettings />} />
                     <Route path="roles" element={<RoleManagementSettings />} />
                     <Route path="admin-users" element={<AdminUsersSettings />} />
+                </Route>
+
+                {/* Tasks */}
+                <Route path="tasks" element={<Outlet />}>
+                    <Route index element={<AllTasks />} />
+                    <Route path="all" element={<AllTasks />} />
+                    <Route path="add" element={<AddTask />} />
                 </Route>
 
                 {/* 404 */}

@@ -12,12 +12,12 @@ export default function Layout() {
             <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
             {/* Main content area */}
-            <div className="flex flex-col flex-1 overflow-hidden">
+            <div className="flex flex-1 flex-col overflow-hidden">
                 {/* Topbar */}
                 <Topbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
                 {/* Page content */}
-                <main className="flex-1 overflow-y-auto p-6">
+                <main className="display-flex overflow-y-auto">
                     <Outlet /> {/* Nested routes render হবে এখানে */}
                 </main>
             </div>

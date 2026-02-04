@@ -15,6 +15,7 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  CheckCircle
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -148,6 +149,15 @@ export default function Sidebar() {
         { label: 'Low Stock Alerts', to: '/inventory/low-stock-alerts' },
         { label: 'Warehouse Management', to: '/inventory/warehouse-management' },
         { label: 'Suppliers', to: '/inventory/suppliers' },
+      ],
+    },
+    {
+      id: 'tasks',
+      title: 'Tasks',
+      icon: CheckCircle,
+      items: [
+        { label: 'All Tasks', to: '/tasks/all' },
+        { label: 'Add Task', to: '/tasks/add' },
       ],
     },
 
