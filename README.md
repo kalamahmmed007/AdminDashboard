@@ -1,18 +1,61 @@
-# Premium Admin Template (React + Vite + Tailwind)
+# Admin Dashboard
 
-**Features**
-- React 18 + Vite
-- Tailwind CSS
-- Sidebar + Topbar with animations (Framer Motion)
-- Charts (Recharts)
-- Dark/Light theme toggle
-- Pages: Dashboard, Users, Orders, Settings
+<img width="1899" height="938" alt="image" src="https://github.com/user-attachments/assets/165f0901-8f13-497c-856b-b545856e8740" />
 
-## Quick Start
 
-1. unzip the template
-2. `npm install`
-3. `npm run dev`
-4. open http://localhost:5173
+A modern **Admin Dashboard** built with **React**, **Tailwind CSS**, and **React Router**, featuring a fully functional settings panel, user management, notifications, and more.
 
-> Tailwind needs PostCSS + Autoprefixer installed (included in devDependencies).
+---
+
+## Table of Contents
+
+- [Features](#features)  
+- [Technologies](#technologies)  
+- [Installation](#installation)  
+- [Usage](#usage)  
+- [Screenshots](#screenshots)  
+- [Folder Structure](#folder-structure)  
+- [Contributing](#contributing)  
+- [License](#license)  
+
+---
+
+## Features
+
+- Responsive and modern UI using **Tailwind CSS**  
+- **Profile Settings** with profile image upload and editable fields  
+- **Payment Settings**: Bkash, Nagad, DBBL  
+- **Store Settings**, **Shipping**, **Tax Settings**  
+- **User Management**: Normal vs Admin users  
+- **Role Management** & **Admin Users**  
+- **API Access** management for third-party integrations  
+- **Notification Settings**: Email, Push, SMS, Newsletter  
+- **Danger Zone** for account deletion  
+- Fully **mock API-ready** components  
+
+---
+
+## Technologies
+
+- **React 18**  
+- **Tailwind CSS 3**  
+- **React Router v6**  
+- **Lucide Icons**  
+- Optional: **Redux Toolkit** / **Context API** for state management  
+
+---
+
+## Installation
+
+```bash
+# Clone the repo
+git clone https://github.com/yourusername/AdminDashboard.git
+
+# Enter the project directory
+cd AdminDashboard
+
+# Install dependencies
+npm install
+
+# Run the app
+npm run dev
