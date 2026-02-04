@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search, Filter, Plus, MoreHorizontal, Edit, Trash2, Eye, Copy, Archive, ChevronDown, Grid, List, ArrowUpDown, Package, DollarSign, TrendingUp, AlertTriangle, X, ChevronLeft, ChevronRight, Star, Tag } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 export default function AllProducts() {
     const [viewMode, setViewMode] = useState('table');
@@ -12,6 +13,7 @@ export default function AllProducts() {
     const [productToDelete, setProductToDelete] = useState(null);
     const [showFilterDropdown, setShowFilterDropdown] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const navigate = useNavigate();
 
     const stats = [
         { label: 'Total Products', value: '1,234', icon: Package, color: 'blue', change: '+24 this month' },
@@ -77,6 +79,7 @@ export default function AllProducts() {
         setShowDeleteModal(true);
     };
 
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="mx-auto max-w-7xl">
@@ -86,7 +89,7 @@ export default function AllProducts() {
                         <h1 className="text-3xl font-bold text-gray-900">Products</h1>
                         <p className="mt-1 text-gray-600">Manage your product inventory</p>
                     </div>
-                    <button className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                    <button onClick={() => navigate("/products/add-product")} className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
                         <Plus className="h-5 w-5" />
                         Add Product
                     </button>

@@ -33,6 +33,8 @@ import Tags from '../pages/Products/Tags';
 import Inventory from '../pages/Products/Inventory';
 import StockManagement from '../pages/Products/StockManagement';
 import Productreview from '../pages/Products/Productreview';
+import EditTag from '../pages/Products/EditTag';
+import AddTag from '../pages/Products/AddTag';
 
 // Analytics
 import CustomerReports from '../pages/Analytics/CustomerReports';
@@ -101,8 +103,8 @@ export default function AppRoutes() {
                 {/* Products */}
                 <Route path="products" element={<Outlet />}>
                     <Route index element={<AllProducts />} />
-                    <Route path="all" element={<AllProducts />} />
-                    <Route path="add" element={<AddProduct />} />
+                    <Route path="all" element={<AllProducts />} />                   
+                    <Route path="add-product" element={<AddProduct />} />
                     <Route path="categories" element={<Outlet />}>
                         <Route index element={<Categories />} />
                         <Route path="electronics" element={<Categories />} />
@@ -113,6 +115,8 @@ export default function AppRoutes() {
                     <Route path="productreview" element={<Productreview />} />
                     <Route path="tags" element={<Tags />} />
                     <Route path="inventory" element={<Inventory />} />
+                    <Route path="tags/edit/:id" element={<EditTag />} />
+                    <Route path="tags/add" element={<AddTag />} />
                 </Route>
 
                 {/* Analytics */}

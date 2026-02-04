@@ -640,25 +640,6 @@ const EnhancedDashboard = () => {
                 ))}
               </div>
             </div>
-
-            {/* NEW: Quick Actions */}
-            <div className="rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white shadow-lg">
-              <h3 className="mb-4 text-lg font-bold">Quick Actions</h3>
-              <div className="space-y-2">
-                <button className="w-full rounded-lg bg-white/20 px-4 py-3 text-left font-semibold backdrop-blur-sm transition-all hover:bg-white/30">
-                  📊 Generate Report
-                </button>
-                <button className="w-full rounded-lg bg-white/20 px-4 py-3 text-left font-semibold backdrop-blur-sm transition-all hover:bg-white/30">
-                  ➕ Add New Order
-                </button>
-                <button className="w-full rounded-lg bg-white/20 px-4 py-3 text-left font-semibold backdrop-blur-sm transition-all hover:bg-white/30">
-                  👥 Manage Customers
-                </button>
-                <button className="w-full rounded-lg bg-white/20 px-4 py-3 text-left font-semibold backdrop-blur-sm transition-all hover:bg-white/30">
-                  ⚙️ Settings
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
