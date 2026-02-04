@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Search, Filter, Package, AlertTriangle, TrendingUp, TrendingDown, ArrowUpDown, Plus, Minus, Save, History, Download, Upload, RefreshCw, ChevronDown, X, Check, Edit2, BarChart3, Boxes, Archive, Clock, ArrowRight } from 'lucide-react';
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { selectWarehouses } from '../../redux/slices/warehouseSlice';
+import {
+    Search, Package, AlertTriangle, TrendingUp, TrendingDown,
+    ArrowUpDown, Plus, Minus, Save, History, Download, Upload, RefreshCw,
+    X, Edit2, BarChart3, Boxes, Clock, ArrowRight
+} from 'lucide-react';
 
 export default function StockManagement() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -13,19 +20,20 @@ export default function StockManagement() {
     const [adjustmentQty, setAdjustmentQty] = useState('');
     const [adjustmentReason, setAdjustmentReason] = useState('');
     const [editingStock, setEditingStock] = useState({});
+    const navigate = useNavigate();
+
+    const warehousesList = useSelector(selectWarehouses);
+
+    const warehouses = [
+        { id: 'all', name: 'All Warehouses' },
+        ...warehousesList.map(w => ({ id: w.id, name: w.name }))
+    ];
 
     const stats = [
         { label: 'Total SKUs', value: '1,234', icon: Package, color: 'blue', sub: 'Across all warehouses' },
         { label: 'Low Stock Items', value: '23', icon: AlertTriangle, color: 'yellow', sub: 'Below threshold' },
         { label: 'Out of Stock', value: '8', icon: Boxes, color: 'red', sub: 'Needs restock' },
         { label: 'Total Units', value: '45,892', icon: BarChart3, color: 'green', sub: '$284,520 value' }
-    ];
-
-    const warehouses = [
-        { id: 'all', name: 'All Warehouses' },
-        { id: 'wh1', name: 'Main Warehouse - LA' },
-        { id: 'wh2', name: 'East Coast - NY' },
-        { id: 'wh3', name: 'Central - Chicago' }
     ];
 
     const [products, setProducts] = useState([
@@ -62,7 +70,9 @@ export default function StockManagement() {
             (filterStatus === 'low' && (status.label === 'Low Stock' || status.label === 'Critical')) ||
             (filterStatus === 'out' && status.label === 'Out of Stock') ||
             (filterStatus === 'in' && status.label === 'In Stock');
-        return matchesSearch && matchesFilter;
+
+        const matchesWarehouse = selectedWarehouse === 'all' || (p.warehouses[selectedWarehouse] ?? 0) > 0;
+        return matchesSearch && matchesFilter && matchesWarehouse;
     });
 
     const openAdjustModal = (product) => {
@@ -98,7 +108,7 @@ export default function StockManagement() {
     const handleInlineEdit = (productId, value) => {
         const qty = parseInt(value) || 0;
         setProducts(products.map(p => p.id === productId ? { ...p, stock: qty } : p));
-        setEditingStock({});
+        setEditingStock(prev => ({ ...prev, [productId]: false }));
     };
 
     return (
@@ -119,7 +129,9 @@ export default function StockManagement() {
                             <Upload className="h-4 w-4" />
                             Import
                         </button>
-                        <button className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+                        <button 
+                        onClick={() => setAdjustmentType('add')}
+                         className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm ${adjustmentType === 'add' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200'}`}>
                             <Plus className="h-4 w-4" />
                             Add Stock
                         </button>

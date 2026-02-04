@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { addProduct, selectWarehouses, selectCategories } from '../../redux/slices/stockSlice';
+import { addProduct, selectCategories } from '../../redux/slices/stockSlice';
+import { selectWarehouses } from '../../redux/slices/warehouseSlice';
 import { 
     ArrowLeft, 
     Save, 
