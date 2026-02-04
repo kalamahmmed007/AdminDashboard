@@ -59,6 +59,7 @@ export default function Sidebar() {
       icon: ShoppingBag,
       items: [
         { label: 'All Products', to: '/products/all' },
+
         {
           label: 'Categories',
           subItems: [
@@ -155,7 +156,9 @@ export default function Sidebar() {
       title: 'Settings',
       icon: Settings,
       items: [
+        { label: 'Settings', to: '/settings/index' },
         { label: 'Store Settings', to: '/settings/store' },
+        { label: 'Profile Settings', to: '/settings/profile' },
         { label: 'Payment Methods', to: '/settings/payment-methods' },
         { label: 'Shipping Settings', to: '/settings/shipping' },
         { label: 'Tax Settings', to: '/settings/tax' },

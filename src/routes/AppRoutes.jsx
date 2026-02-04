@@ -58,6 +58,17 @@ import Campaigns from '../pages/Marketing/Campaigns';
 
 // Settings
 import Settings from '../pages/Settings';
+import ProfileSettings from '../pages/Settings/ProfileSettings';
+import StoreSettings from '../pages/Settings/StoreSettings';
+import PaymentSettings from '../pages/Settings/PaymentSettings';
+import ShippingSettings from '../pages/Settings/ShippingSettings';
+import TaxSettings from '../pages/Settings/TaxSettings';
+import UserManagement from '../pages/Settings/UserManagement';
+import NotificationSettings from '../pages/Settings/NotificationSettings';
+import ApiAccessSettings from '../pages/Settings/APIAccess';
+import RoleManagementSettings from '../pages/Settings/RoleManagement';
+import AdminUsersSettings from '../pages/Settings/AdminUsers';
+
 
 
 
@@ -148,7 +159,20 @@ export default function AppRoutes() {
                 </Route>
 
                 {/* Settings */}
-                <Route path="settings" element={<Settings />} />
+                <Route path="settings" element={<Outlet />}>
+                    <Route index element={<Settings />} />
+                    <Route path="index" element={<Settings />} />
+                    <Route path="store" element={<StoreSettings />} />
+                    <Route path="profile" element={<ProfileSettings />} />
+                    <Route path="payment-methods" element={<PaymentSettings />} />
+                    <Route path="shipping" element={<ShippingSettings />} />
+                    <Route path="tax" element={<TaxSettings />} />
+                    <Route path="users" element={<UserManagement />} />
+                    <Route path="notifications" element={<NotificationSettings />} />
+                    <Route path="api-access" element={<ApiAccessSettings />} />
+                    <Route path="roles" element={<RoleManagementSettings />} />
+                    <Route path="admin-users" element={<AdminUsersSettings />} />
+                </Route>
 
                 {/* 404 */}
                 <Route
