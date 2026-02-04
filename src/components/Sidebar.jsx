@@ -59,7 +59,6 @@ export default function Sidebar() {
       icon: ShoppingBag,
       items: [
         { label: 'All Products', to: '/products/all' },
-        { label: 'Add Product', to: '/products/add' },
         {
           label: 'Categories',
           subItems: [

@@ -32,6 +32,7 @@ import Categories from '../pages/Products/Categories';
 import Tags from '../pages/Products/Tags';
 import Inventory from '../pages/Products/Inventory';
 import StockManagement from '../pages/Products/StockManagement';
+import AddStock from '../pages/Products/AddStock';
 import Productreview from '../pages/Products/Productreview';
 import EditTag from '../pages/Products/EditTag';
 import AddTag from '../pages/Products/AddTag';
@@ -112,6 +113,7 @@ export default function AppRoutes() {
                         <Route path="accessories" element={<Categories />} />
                     </Route>
                     <Route path="stock-management" element={<StockManagement />} />
+                    <Route path="stock-management/add" element={<AddStock />} />
                     <Route path="productreview" element={<Productreview />} />
                     <Route path="tags" element={<Tags />} />
                     <Route path="inventory" element={<Inventory />} />
