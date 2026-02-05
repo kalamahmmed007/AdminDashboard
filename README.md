@@ -45,17 +45,10 @@ A modern **Admin Dashboard** built with **React**, **Tailwind CSS**, and **React
 
 ---
 
-## Installation
+⚠️ LICENSE NOTICE
 
-```bash
-# Clone the repo
-git clone https://github.com/yourusername/AdminDashboard.git
+This is a PAID Admin Panel project.
+You must purchase a license to use this software.
 
-# Enter the project directory
-cd AdminDashboard
+Unauthorized sharing or redistribution is strictly prohibited.
 
-# Install dependencies
-npm install
-
-# Run the app
-npm run dev
