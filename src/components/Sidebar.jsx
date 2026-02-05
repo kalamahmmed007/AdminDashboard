@@ -207,10 +207,10 @@ export default function Sidebar() {
           <button
             onClick={() => toggle(item.id)}
             className={`flex items-center justify-between w-full p-3 rounded-lg text-left transition-colors
-              ${isExpanded ? 'bg-red-50 text-black' : 'hover:bg-red-50 text-black'}`}
+              ${isExpanded ? 'bg-red-50 text-black ' : 'hover:bg-red-50 text-black'}`}
           >
             <span className="flex items-center gap-2">
-              {item.icon && <item.icon className="h-5 w-5 text-red-600" />}
+              {item.icon && <item.icon className="h-5 w-5 text-green-600" />}
               {item.title}
             </span>
             {isExpanded ? <ChevronDown className="h-4 w-4 text-red-600" /> : <ChevronRight className="h-4 w-4 text-red-600" />}
@@ -257,7 +257,7 @@ export default function Sidebar() {
         to={item.to}
         className={`flex items-center gap-2 p-3 rounded-lg text-black transition-colors ${isActive ? 'bg-red-50' : 'hover:bg-red-50'}`}
       >
-        {item.icon && <item.icon className="h-5 w-5 text-red-600" />}
+        {item.icon && <item.icon className="h-5 w-5 text-green-600" />}
         {item.title}
       </Link>
     );
