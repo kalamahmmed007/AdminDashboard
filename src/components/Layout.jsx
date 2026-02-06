@@ -18,7 +18,7 @@ export default function Layout() {
 
                 {/* Page content */}
                 <main className="display-flex overflow-y-auto">
-                    <Outlet /> {/* Nested routes render হবে এখানে */}
+                    <Outlet /> 
                 </main>
             </div>
         </div>
