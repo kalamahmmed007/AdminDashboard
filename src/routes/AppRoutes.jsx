@@ -37,6 +37,12 @@ import Productreview from '../pages/Products/Productreview';
 import EditTag from '../pages/Products/EditTag';
 import AddTag from '../pages/Products/AddTag';
 
+// Customers
+import AllCustomers from '../pages/Customers/AllCustomers';
+import CustomerGroups from '../pages/Customers/CustomerGroups';
+import CustomerSupport from '../pages/Customers/CustomerSupport';
+import AbandonedCarts from '../pages/Customers/AbandonedCarts';
+
 // Analytics
 import CustomerReports from '../pages/Analytics/CustomerReports';
 import ProductReports from '../pages/Analytics/ProductReports';
@@ -48,6 +54,15 @@ import LowStockAlerts from "../pages/Inventory/lowstockalerts";
 import StockLevels from "../pages/Inventory/stocklevels";
 import WarehouseManagement from "../pages/Inventory/warehousemanagement";
 import Suppliers from '../pages/Inventory/suppliers';
+
+//sales
+import Discounts from "../pages/Sales/Discounts";
+import GiftCards from "../pages/Sales/GiftCards";
+import LoyaltyPrograms from "../pages/Sales/LoyaltyPrograms";
+import Affiliates from "../pages/Sales/Affiliates";
+import ReturnRequests from "../pages/Sales/ReturnRequests";
+import Invoices from "../pages/Sales/Invoices";
+
 // Marketing
 import Coupons from '../pages/Marketing/Coupons';
 import EmailCampaign from '../pages/Marketing/EmailCampaign';
@@ -72,6 +87,13 @@ import AdminUsersSettings from '../pages/Settings/AdminUsers';
 //Tasks
 import AllTasks from '../pages/Tasks/AllTasks';
 import AddTask from '../pages/Tasks/AddTask';
+
+// Shipping
+import ShippingZones from "../pages/Shipping/Shipingzone"; // Z capital
+import DeliveryMethods from "../pages/Shipping/Deleverymethod"; // fixed typo
+import Carriers from "../pages/Shipping/Carriers";
+import TrackingConfig from "../pages/Shipping/Trackingconfig";
+
 
 
 
@@ -144,6 +166,26 @@ export default function AppRoutes() {
                     <Route path="sales" element={<SalesReport />} />
                 </Route>
 
+                {/*Sales*/}
+                <Route path="/sales">
+                    <Route path="discounts" element={<Discounts />} />
+                    <Route path="gift-cards" element={<GiftCards />} />
+                    <Route path="loyalty" element={<LoyaltyPrograms />} />
+                    <Route path="affiliates" element={<Affiliates />} />
+                    <Route path="returns" element={<ReturnRequests />} />
+                    <Route path="invoices" element={<Invoices />} />
+               </Route>
+
+
+                {/* Customers */}
+                <Route path="customers" element={<Outlet />}>
+                    <Route index element={<AllCustomers />} />
+                    <Route path="all" element={<AllCustomers />} />
+                    <Route path="groups" element={<CustomerGroups />} />
+                    <Route path="support" element={<CustomerSupport />} />
+                    <Route path="abandoned-carts" element={<AbandonedCarts />} />
+                </Route>
+
                 {/* Marketing */}
                 <Route path="marketing" element={<Outlet />}>
                     <Route path="coupons" element={<Coupons />} />
@@ -183,6 +225,14 @@ export default function AppRoutes() {
                     <Route index element={<AllTasks />} />
                     <Route path="all" element={<AllTasks />} />
                     <Route path="add" element={<AddTask />} />
+                </Route>
+
+                 {/* Shipping */}
+                 <Route path="shipping" element={<Outlet />}>
+                    <Route path="zones" element={<ShippingZones />} />
+                    <Route path="delivery-methods" element={<DeliveryMethods />} />
+                    <Route path="carriers" element={<Carriers />} />
+                    <Route path="tracking-config" element={<TrackingConfig />} />
                 </Route>
 
                 {/* 404 */}
