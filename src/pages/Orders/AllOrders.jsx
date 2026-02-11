@@ -1,10 +1,7 @@
 // src/pages/Orders/AllOrders.jsx
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchOrders,
-  updateOrder,
-} from "../../redux/slices/orderSlice";
+import { fetchOrders, updateOrder } from "../../redux/slices/orderSlice";
 import {
   CheckCircle,
   XCircle,
@@ -22,7 +19,7 @@ import {
 
 export default function AllOrders() {
   const dispatch = useDispatch();
-  const { items: orders } = useSelector((state) => state.orders);
+  const { items: orders = [] } = useSelector((state) => state.orders);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -46,13 +43,16 @@ export default function AllOrders() {
     if (selectedOrders.length === orders.length) {
       setSelectedOrders([]);
     } else {
-      setSelectedOrders(orders.map((o) => o.id || o._id));
+      setSelectedOrders(orders.map((o) => o._id));
     }
   };
 
   const approveOrder = (orderId) => {
     dispatch(
-      updateOrder({ id: orderId, payload: { status: "completed", completedDate: new Date().toISOString() } })
+      updateOrder({
+        id: orderId,
+        payload: { status: "completed", completedDate: new Date().toISOString() },
+      })
     );
     setSelectedOrders((prev) => prev.filter((id) => id !== orderId));
   };
@@ -66,30 +66,13 @@ export default function AllOrders() {
     selectedOrders.forEach((orderId) => approveOrder(orderId));
   };
 
-  const getPriorityColor = (priority) => {
-    const colors = {
-      urgent: "bg-red-100 text-red-800 border-red-300",
-      high: "bg-orange-100 text-orange-800 border-orange-300",
-      normal: "bg-blue-100 text-blue-800 border-blue-300",
-    };
-    return colors[priority];
-  };
-
-  const getPriorityIcon = (priority) => {
-    if (priority === "urgent") return <AlertCircle className="h-3 w-3" />;
-    if (priority === "high") return <Clock className="h-3 w-3" />;
-    return null;
-  };
-
   // Filtered orders
-  const filteredOrders = (orders || [])
-    .filter((order) =>
-      statusFilter === "all" ? true : order.status === statusFilter
-    )
+  const filteredOrders = orders
+    .filter((order) => (statusFilter === "all" ? true : order.status === statusFilter))
     .filter(
       (order) =>
-        order.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -99,7 +82,7 @@ export default function AllOrders() {
   const totalRejected = orders.filter((o) => o.status === "rejected").length;
   const totalRevenue = orders
     .filter((o) => o.status === "completed")
-    .reduce((sum, o) => sum + parseFloat(o.total.slice(1)), 0)
+    .reduce((sum, o) => sum + parseFloat(o.totalAmount), 0)
     .toFixed(2);
 
   return (
@@ -187,16 +170,16 @@ export default function AllOrders() {
             </thead>
             <tbody>
               {filteredOrders.map((order) => (
-                <tr key={order.id || order._id} className="border-b hover:bg-gray-50">
+                <tr key={order._id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-2">
                     <input
                       type="checkbox"
-                      checked={selectedOrders.includes(order.id || order._id)}
-                      onChange={() => toggleOrderSelection(order.id || order._id)}
+                      checked={selectedOrders.includes(order._id)}
+                      onChange={() => toggleOrderSelection(order._id)}
                     />
                   </td>
-                  <td className="px-4 py-2">{order.id}</td>
-                  <td className="px-4 py-2">{order.customer}</td>
+                  <td className="px-4 py-2">{order._id}</td>
+                  <td className="px-4 py-2">{order.customerName}</td>
                   <td className="px-4 py-2">
                     <span
                       className={`px-2 py-1 rounded text-white ${
@@ -210,19 +193,21 @@ export default function AllOrders() {
                       {order.status}
                     </span>
                   </td>
-                  <td className="px-4 py-2">{order.total}</td>
-                  <td className="px-4 py-2">{order.date}</td>
+                  <td className="px-4 py-2">${order.totalAmount}</td>
+                  <td className="px-4 py-2">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </td>
                   <td className="flex gap-2 px-4 py-2">
                     {order.status === "pending" && (
                       <>
                         <button
-                          onClick={() => approveOrder(order.id || order._id)}
+                          onClick={() => approveOrder(order._id)}
                           className="rounded bg-green-600 px-2 py-1 text-white hover:bg-green-700"
                         >
                           Approve
                         </button>
                         <button
-                          onClick={() => rejectOrder(order.id || order._id)}
+                          onClick={() => rejectOrder(order._id)}
                           className="rounded bg-red-600 px-2 py-1 text-white hover:bg-red-700"
                         >
                           Reject

@@ -1,12 +1,11 @@
-// src/services/products.js
-import api from "./api";
+import { ProductsAPI } from "../services/api";
 
 export const ProductsService = {
-  list: (params) => api.get("/products", { params }),          // GET /api/products?search=&page=&limit=
-  get: (id) => api.get(`/products/${id}`),                     // GET /api/products/:id
-  create: (payload) => api.post("/products", payload),         // POST /api/products
-  update: (id, payload) => api.put(`/products/${id}`, payload), // PUT /api/products/:id
-  delete: (id) => api.delete(`/products/${id}`),              // DELETE /api/products/:id
-  bulkDelete: (ids) => api.post("/products/bulk-delete", { ids }),
-  bulkUpdateStatus: (ids, status) => api.post("/products/bulk-update-status", { ids, status }),
+  list: (params) => ProductsAPI.list(params),          // GET /api/products?search=&page=&limit=
+  get: (id) => ProductsAPI.get(id),                     // GET /api/products/:id
+  create: (payload) => ProductsAPI.create(payload),         // POST /api/products
+  update: (id, payload) => ProductsAPI.update(id, payload), // PUT /api/products/:id
+  delete: (id) => ProductsAPI.delete(id),              // DELETE /api/products/:id
+  bulkDelete: (ids) => ProductsAPI.bulkDelete(ids),
+  bulkUpdateStatus: (ids, status) => ProductsAPI.bulkUpdateStatus(ids, status),
 };

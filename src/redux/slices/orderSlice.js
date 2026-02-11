@@ -1,11 +1,11 @@
 // src/redux/slices/orderSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { OrdersService } from "../../../src/services/orders";
-
+import { OrdersAPI } from "../../services/api";
 // thunks
 export const fetchOrders = createAsyncThunk("orders/fetch", async (params, { rejectWithValue }) => {
     try {
-        const res = await OrdersService.list(params);
+        const res = await OrdersAPI.list(params);
         // ensure consistent shape
         return { items: res.data.items ?? res.data, total: res.data.total ?? (res.data.items?.length ?? res.data.length ?? 0) };
     } catch (e) {
@@ -15,7 +15,7 @@ export const fetchOrders = createAsyncThunk("orders/fetch", async (params, { rej
 
 export const fetchOrder = createAsyncThunk("orders/fetchOne", async (id, { rejectWithValue }) => {
     try {
-        const res = await OrdersService.get(id);
+        const res = await OrdersAPI.get(id);
         return res.data;
     } catch (e) {
         return rejectWithValue(e.response?.data || e.message);
@@ -24,7 +24,7 @@ export const fetchOrder = createAsyncThunk("orders/fetchOne", async (id, { rejec
 
 export const createOrder = createAsyncThunk("orders/create", async (payload, { rejectWithValue }) => {
     try {
-        const res = await OrdersService.create(payload);
+        const res = await OrdersAPI.create(payload);
         return res.data;
     } catch (e) {
         return rejectWithValue(e.response?.data || e.message);
@@ -33,7 +33,7 @@ export const createOrder = createAsyncThunk("orders/create", async (payload, { r
 
 export const updateOrder = createAsyncThunk("orders/update", async ({ id, payload }, { rejectWithValue }) => {
     try {
-        const res = await OrdersService.update(id, payload);
+        const res = await OrdersAPI.update(id, payload);
         return res.data;
     } catch (e) {
         return rejectWithValue(e.response?.data || e.message);
