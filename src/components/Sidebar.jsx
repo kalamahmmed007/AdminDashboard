@@ -180,7 +180,8 @@ export default function Sidebar() {
       ],
     },
 
-    { id: 'logout', title: 'Logout', icon: LogOut, action: () => console.log('Logout clicked') },
+    { id: 'logout', title: 'Logout', icon: LogOut, action: () => { localStorage.removeItem('adminToken'); window.location.href = '/login'; } },
+    
   ];
 
   const renderItem = (item) => {
