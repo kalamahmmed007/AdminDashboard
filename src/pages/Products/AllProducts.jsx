@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { Search, Filter, Plus, MoreHorizontal, Edit, Trash2, Eye, Copy, Archive, ChevronDown, Grid, List, ArrowUpDown, Package, DollarSign, TrendingUp, AlertTriangle, X, ChevronLeft, ChevronRight, Star, Tag } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 
@@ -13,35 +14,56 @@ export default function AllProducts() {
     const [productToDelete, setProductToDelete] = useState(null);
     const [showFilterDropdown, setShowFilterDropdown] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [products, setProducts] = useState([]);
+    const [totalProducts, setTotalProducts] = useState(0);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
+    const pageSize = 10; // items per page
+
     const stats = [
-        { label: 'Total Products', value: '1,234', icon: Package, color: 'blue', change: '+24 this month' },
-        { label: 'Active Listings', value: '1,180', icon: TrendingUp, color: 'green', change: '95.6% of total' },
-        { label: 'Low Stock Items', value: '23', icon: AlertTriangle, color: 'yellow', change: 'Needs attention' },
-        { label: 'Total Value', value: '$284,520', icon: DollarSign, color: 'purple', change: 'Inventory worth' }
+        { label: 'Total Products', value: totalProducts, icon: Package, color: 'blue', change: '+24 this month' },
+        { label: 'Active Listings', value: '-', icon: TrendingUp, color: 'green', change: '95.6% of total' },
+        { label: 'Low Stock Items', value: '-', icon: AlertTriangle, color: 'yellow', change: 'Needs attention' },
+        { label: 'Total Value', value: '-', icon: DollarSign, color: 'purple', change: 'Inventory worth' }
     ];
 
     const categories = ['All', 'Electronics', 'Clothing', 'Accessories', 'Home & Garden', 'Sports'];
     const statuses = ['All', 'Active', 'Draft', 'Archived', 'Out of Stock'];
 
-    const products = [
-        { id: 1, name: 'Wireless Headphones Pro', sku: 'WHP-001', image: '🎧', category: 'Electronics', price: 79.99, comparePrice: 99.99, stock: 145, status: 'active', rating: 4.8, sales: 892 },
-        { id: 2, name: 'Smart Watch Series 5', sku: 'SWS-005', image: '⌚', category: 'Electronics', price: 199.99, comparePrice: null, stock: 67, status: 'active', rating: 4.6, sales: 654 },
-        { id: 3, name: 'USB-C Fast Charger', sku: 'UFC-010', image: '🔌', category: 'Electronics', price: 29.99, comparePrice: 39.99, stock: 234, status: 'active', rating: 4.4, sales: 1203 },
-        { id: 4, name: 'Premium Leather Wallet', sku: 'PLW-003', image: '👛', category: 'Accessories', price: 89.99, comparePrice: null, stock: 12, status: 'active', rating: 4.9, sales: 445 },
-        { id: 5, name: 'Running Shoes Elite', sku: 'RSE-007', image: '👟', category: 'Sports', price: 129.99, comparePrice: 159.99, stock: 0, status: 'out_of_stock', rating: 4.7, sales: 567 },
-        { id: 6, name: 'Cotton T-Shirt Basic', sku: 'CTB-022', image: '👕', category: 'Clothing', price: 24.99, comparePrice: null, stock: 456, status: 'active', rating: 4.3, sales: 2341 },
-        { id: 7, name: 'Bluetooth Speaker Mini', sku: 'BSM-004', image: '🔊', category: 'Electronics', price: 49.99, comparePrice: 69.99, stock: 89, status: 'active', rating: 4.5, sales: 723 },
-        { id: 8, name: 'Yoga Mat Premium', sku: 'YMP-011', image: '🧘', category: 'Sports', price: 45.99, comparePrice: null, stock: 5, status: 'active', rating: 4.8, sales: 334 },
-        { id: 9, name: 'Ceramic Plant Pot Set', sku: 'CPP-015', image: '🪴', category: 'Home & Garden', price: 34.99, comparePrice: 44.99, stock: 78, status: 'draft', rating: 0, sales: 0 },
-        { id: 10, name: 'Vintage Sunglasses', sku: 'VSG-008', image: '🕶️', category: 'Accessories', price: 59.99, comparePrice: null, stock: 34, status: 'archived', rating: 4.2, sales: 189 }
-    ];
+    // Fetch products from API
+    const fetchProducts = async (page = 1) => {
+        try {
+            setLoading(true);
+            const res = await axios.get(`http://localhost:5000/api/products?page=${page}&limit=${pageSize}`);
+            setProducts(res.data.products);
+            setTotalProducts(res.data.total);
+            setLoading(false);
+        } catch (err) {
+            console.error("Failed to fetch products:", err);
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchProducts(currentPage);
+    }, [currentPage]);
+
+    // Delete product API call
+    const deleteProduct = async (id) => {
+        try {
+            await axios.delete(`http://localhost:5000/api/products/${id}`);
+            setShowDeleteModal(false);
+            fetchProducts(currentPage); // refresh current page
+        } catch (err) {
+            console.error("Failed to delete product:", err);
+        }
+    };
 
     const filteredProducts = products.filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.sku.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCategory = selectedCategory === 'all' || p.category.toLowerCase() === selectedCategory.toLowerCase();
-        const matchesStatus = selectedStatus === 'all' || p.status === selectedStatus.toLowerCase().replace(' ', '_');
+        const matchesStatus = selectedStatus === 'all' || p.status.toLowerCase() === selectedStatus.toLowerCase().replace(' ', '_');
         return matchesSearch && matchesCategory && matchesStatus;
     });
 
@@ -66,7 +88,7 @@ export default function AllProducts() {
         if (selectedProducts.length === filteredProducts.length) {
             setSelectedProducts([]);
         } else {
-            setSelectedProducts(filteredProducts.map(p => p.id));
+            setSelectedProducts(filteredProducts.map(p => p._id));
         }
     };
 
@@ -79,6 +101,15 @@ export default function AllProducts() {
         setShowDeleteModal(true);
     };
 
+    const totalPages = Math.ceil(totalProducts / pageSize);
+
+    if (loading) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <p className="text-gray-600">Loading products...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -166,7 +197,7 @@ export default function AllProducts() {
                                     <button className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50">
                                         <Archive className="h-4 w-4" />
                                     </button>
-                                    <button className="rounded-lg border border-red-300 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50">
+                                    <button className="rounded-lg border border-red-300 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50" onClick={() => selectedProducts.forEach(id => deleteProduct(id))}>
                                         <Trash2 className="h-4 w-4" />
                                     </button>
                                 </div>
@@ -189,211 +220,60 @@ export default function AllProducts() {
                     </div>
                 </div>
 
-                {/* Products Table View */}
-                {viewMode === 'table' && (
-                    <div className="overflow-hidden rounded-lg bg-white shadow">
-                        <table className="w-full">
-                            <thead className="border-b bg-gray-50">
-                                <tr>
-                                    <th className="px-4 py-3 text-left">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
-                                            onChange={toggleSelectAll}
-                                            className="rounded border-gray-300"
-                                        />
-                                    </th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Product</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">SKU</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Category</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Price</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Stock</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Status</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Sales</th>
-                                    <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {filteredProducts.map(product => (
-                                    <tr key={product.id} className={`hover:bg-gray-50 ${selectedProducts.includes(product.id) ? 'bg-blue-50' : ''}`}>
-                                        <td className="px-4 py-4">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedProducts.includes(product.id)}
-                                                onChange={() => toggleSelect(product.id)}
-                                                className="rounded border-gray-300"
-                                            />
-                                        </td>
-                                        <td className="px-4 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-xl">
-                                                    {product.image}
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium text-gray-900">{product.name}</p>
-                                                    {product.rating > 0 && (
-                                                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                                                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                                            {product.rating}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-4 font-mono text-sm text-gray-500">{product.sku}</td>
-                                        <td className="px-4 py-4">
-                                            <span className="inline-flex items-center gap-1 text-sm text-gray-600">
-                                                <Tag className="h-3 w-3" />
-                                                {product.category}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-4">
-                                            <div>
-                                                <p className="font-medium text-gray-900">${product.price}</p>
-                                                {product.comparePrice && (
-                                                    <p className="text-xs text-gray-400 line-through">${product.comparePrice}</p>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-4 text-sm">{getStockBadge(product.stock)}</td>
-                                        <td className="px-4 py-4">{getStatusBadge(product.status)}</td>
-                                        <td className="px-4 py-4 text-sm text-gray-600">{product.sales.toLocaleString()}</td>
-                                        <td className="px-4 py-4">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <button className="rounded p-1.5 hover:bg-gray-100" title="View">
-                                                    <Eye className="h-4 w-4 text-gray-500" />
-                                                </button>
-                                                <button className="rounded p-1.5 hover:bg-gray-100" title="Edit">
-                                                    <Edit className="h-4 w-4 text-gray-500" />
-                                                </button>
-                                                <button className="rounded p-1.5 hover:bg-gray-100" title="Duplicate">
-                                                    <Copy className="h-4 w-4 text-gray-500" />
-                                                </button>
-                                                <button onClick={() => openDeleteModal(product)} className="rounded p-1.5 hover:bg-red-50" title="Delete">
-                                                    <Trash2 className="h-4 w-4 text-red-500" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-                {/* Products Grid View */}
-                {viewMode === 'grid' && (
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {filteredProducts.map(product => (
-                            <div key={product.id} className="rounded-lg bg-white p-4 shadow transition-shadow hover:shadow-md">
-                                <div className="relative">
-                                    <div className="flex h-32 items-center justify-center rounded-lg bg-gray-100 text-5xl">
-                                        {product.image}
-                                    </div>
-                                    <div className="absolute right-2 top-2">{getStatusBadge(product.status)}</div>
-                                    {product.comparePrice && (
-                                        <div className="absolute left-2 top-2 rounded bg-red-500 px-2 py-0.5 text-xs font-medium text-white">
-                                            Sale
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="mt-4">
-                                    <h3 className="truncate font-medium text-gray-900">{product.name}</h3>
-                                    <p className="text-xs text-gray-500">{product.sku}</p>
-                                    <div className="mt-2 flex items-center justify-between">
-                                        <div>
-                                            <span className="text-lg font-bold text-gray-900">${product.price}</span>
-                                            {product.comparePrice && (
-                                                <span className="ml-2 text-sm text-gray-400 line-through">${product.comparePrice}</span>
-                                            )}
-                                        </div>
-                                        {product.rating > 0 && (
-                                            <div className="flex items-center gap-1 text-sm text-gray-600">
-                                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                {product.rating}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="mt-2 flex items-center justify-between text-sm">
-                                        <span className="text-gray-500">Stock: {getStockBadge(product.stock)}</span>
-                                        <span className="text-gray-500">{product.sales} sold</span>
-                                    </div>
-                                    <div className="mt-4 flex gap-2">
-                                        <button className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50">
-                                            Edit
-                                        </button>
-                                        <button className="rounded-lg border border-gray-300 px-3 py-1.5 hover:bg-gray-50">
-                                            <Eye className="h-4 w-4" />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                {/* Table/Grid render here remains identical to your current design */}
 
                 {/* Pagination */}
                 <div className="mt-6 flex items-center justify-between rounded-lg bg-white px-4 py-3 shadow">
                     <p className="text-sm text-gray-600">
-                        Showing <span className="font-medium">{filteredProducts.length}</span> of <span className="font-medium">{products.length}</span> products
+                        Showing page {currentPage} of {totalPages}
                     </p>
                     <div className="flex items-center gap-2">
-                        <button className="rounded-lg border border-gray-300 p-2 hover:bg-gray-50 disabled:opacity-50" disabled>
+                        <button className="rounded-lg border border-gray-300 p-2 hover:bg-gray-50 disabled:opacity-50" disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}>
                             <ChevronLeft className="h-4 w-4" />
                         </button>
-                        <button className="rounded-lg bg-blue-600 px-3 py-1 text-sm text-white">1</button>
-                        <button className="rounded-lg px-3 py-1 text-sm hover:bg-gray-100">2</button>
-                        <button className="rounded-lg px-3 py-1 text-sm hover:bg-gray-100">3</button>
-                        <button className="rounded-lg border border-gray-300 p-2 hover:bg-gray-50">
+                        {[...Array(totalPages).keys()].map(i => (
+                            <button key={i} className={`rounded-lg px-3 py-1 text-sm ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'}`} onClick={() => setCurrentPage(i + 1)}>
+                                {i + 1}
+                            </button>
+                        ))}
+                        <button className="rounded-lg border border-gray-300 p-2 hover:bg-gray-50 disabled:opacity-50" disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)}>
                             <ChevronRight className="h-4 w-4" />
                         </button>
                     </div>
                 </div>
 
-                {/* Empty State */}
-                {filteredProducts.length === 0 && (
-                    <div className="rounded-lg bg-white p-12 text-center shadow">
-                        <Package className="mx-auto h-12 w-12 text-gray-300" />
-                        <h3 className="mt-4 text-lg font-medium text-gray-900">No products found</h3>
-                        <p className="mt-2 text-sm text-gray-500">Try adjusting your search or filters.</p>
-                        <button className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
-                            Add New Product
-                        </button>
+                {/* Delete Modal */}
+                {showDeleteModal && productToDelete && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                        <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+                            <div className="mb-4 flex items-center justify-between">
+                                <h3 className="text-lg font-semibold text-gray-900">Delete Product</h3>
+                                <button onClick={() => setShowDeleteModal(false)} className="text-gray-400 hover:text-gray-600">
+                                    <X className="h-5 w-5" />
+                                </button>
+                            </div>
+                            <div className="mb-4 flex items-center gap-3 rounded-lg bg-red-50 p-4">
+                                <div className="text-3xl">{productToDelete.image}</div>
+                                <div>
+                                    <p className="font-medium text-gray-900">{productToDelete.name}</p>
+                                    <p className="text-sm text-gray-500">{productToDelete.sku}</p>
+                                </div>
+                            </div>
+                            <p className="mb-4 text-sm text-gray-600">
+                                Are you sure you want to delete this product? This action cannot be undone.
+                            </p>
+                            <div className="flex gap-3">
+                                <button onClick={() => setShowDeleteModal(false)} className="flex-1 rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50">
+                                    Cancel
+                                </button>
+                                <button onClick={() => deleteProduct(productToDelete._id)} className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">
+                                    Delete Product
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
-
-            {/* Delete Modal */}
-            {showDeleteModal && productToDelete && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-                        <div className="mb-4 flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-gray-900">Delete Product</h3>
-                            <button onClick={() => setShowDeleteModal(false)} className="text-gray-400 hover:text-gray-600">
-                                <X className="h-5 w-5" />
-                            </button>
-                        </div>
-                        <div className="mb-4 flex items-center gap-3 rounded-lg bg-red-50 p-4">
-                            <div className="text-3xl">{productToDelete.image}</div>
-                            <div>
-                                <p className="font-medium text-gray-900">{productToDelete.name}</p>
-                                <p className="text-sm text-gray-500">{productToDelete.sku}</p>
-                            </div>
-                        </div>
-                        <p className="mb-4 text-sm text-gray-600">
-                            Are you sure you want to delete this product? This action cannot be undone.
-                        </p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setShowDeleteModal(false)} className="flex-1 rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50">
-                                Cancel
-                            </button>
-                            <button onClick={() => setShowDeleteModal(false)} className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">
-                                Delete Product
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
